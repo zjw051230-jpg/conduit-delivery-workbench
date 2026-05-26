@@ -1,0 +1,32 @@
+{
+  "id": "popular-tags-badge",
+  "name": "热门标签 Top 标识",
+  "requirementType": "frontend-display",
+  "description": "为 Popular Tags 侧边栏前几个标签增加视觉标识。",
+  "keywords": [
+    "Popular Tags",
+    "热门标签",
+    "前 5",
+    "前5",
+    "打标",
+    "标签标识",
+    "tag"
+  ],
+  "contextHints": [
+    "frontend/src/components/PopularTags/PopularTags.jsx",
+    "frontend/src/components/PopularTags/TagButton.jsx",
+    "frontend/src/services/getTags.js"
+  ],
+  "targetModules": [
+    "frontend-component",
+    "frontend-service"
+  ],
+  "acceptanceCriteria": [
+    "Popular Tags 前 5 个标签显示视觉标识",
+    "不改变后端标签排序语义"
+  ],
+  "testCommands": [
+    "npm run build -w frontend"
+  ],
+  "writer": "popularTagsBadgeWriter"
+}

@@ -1,0 +1,5 @@
+{"id":"dev-1","text":"I love the fast interface.","label":"positive"}
+{"id":"dev-2","text":"The app has a crash bug.","label":"negative"}
+{"id":"dev-3","text":"Release notes mention version two.","label":"neutral"}
+{"id":"dev-4","text":"The response was slow and confusing.","label":"negative"}
+{"id":"dev-5","text":"Documentation is clear and helpful.","label":"positive"}

@@ -1,0 +1,5 @@
+{"id":"train-1","text":"I love the fast clean writing flow.","label":"positive"}
+{"id":"train-2","text":"A crash bug makes the editor unusable.","label":"negative"}
+{"id":"train-3","text":"The release notes mention a configuration update.","label":"neutral"}
+{"id":"train-4","text":"Clear documentation and helpful examples improve setup.","label":"positive"}
+{"id":"train-5","text":"The response is slow and confusing under load.","label":"negative"}

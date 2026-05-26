@@ -1,0 +1,38 @@
+{
+  "id": "article-word-stats",
+  "name": "文章详情字数统计",
+  "requirementType": "frontend-display",
+  "description": "在文章详情页根据 Article.body 计算字数和预计阅读时间。",
+  "keywords": [
+    "文章详情",
+    "文章详情页",
+    "字数统计",
+    "预计阅读",
+    "阅读时间",
+    "Article.body",
+    "Markdown",
+    "article"
+  ],
+  "contextHints": [
+    "frontend/src/routes/Article/Article.jsx",
+    "frontend/src/helpers",
+    "frontend/src/routes/Article",
+    "Article.body",
+    "Markdown"
+  ],
+  "targetModules": [
+    "frontend-route",
+    "frontend-helper",
+    "frontend-test"
+  ],
+  "acceptanceCriteria": [
+    "文章详情页正文下方显示字数",
+    "展示预计阅读时间",
+    "空正文不会让页面崩溃",
+    "新增计算逻辑有单元测试"
+  ],
+  "testCommands": [
+    "npm test -- frontend/src/helpers/readingStats.test.js"
+  ],
+  "writer": "articleWordStatsWriter"
+}

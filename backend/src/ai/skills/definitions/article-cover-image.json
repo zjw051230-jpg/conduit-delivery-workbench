@@ -1,0 +1,38 @@
+{
+  "id": "article-cover-image",
+  "name": "文章封面图字段",
+  "requirementType": "cross-stack-field",
+  "description": "为 Article 增加 coverImage 字段并贯通表单、接口和展示。",
+  "keywords": [
+    "封面图",
+    "coverImage",
+    "文章封面",
+    "新增字段",
+    "Article 模型"
+  ],
+  "contextHints": [
+    "backend/models/Article.js",
+    "backend/migrations/20220129140808-create-article.js",
+    "backend/controllers/articles.js",
+    "frontend/src/components/ArticleEditorForm/ArticleEditorForm.jsx",
+    "frontend/src/routes/Article/Article.jsx",
+    "frontend/src/components/ArticlesPreview/ArticlesPreview.jsx"
+  ],
+  "targetModules": [
+    "backend-model",
+    "backend-controller",
+    "frontend-form",
+    "frontend-display",
+    "migration"
+  ],
+  "acceptanceCriteria": [
+    "Article 数据模型包含 coverImage",
+    "新建和编辑文章可以提交封面图 URL",
+    "列表卡片和详情页展示封面图",
+    "前后端字段命名一致"
+  ],
+  "testCommands": [
+    "npm run build -w frontend"
+  ],
+  "writer": "articleCoverImageWriter"
+}
