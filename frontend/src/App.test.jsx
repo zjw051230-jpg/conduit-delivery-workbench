@@ -585,6 +585,59 @@ describe("AI page team mechanism", () => {
     expect(screen.getByText("Completion Criteria")).toBeTruthy();
   });
 
+  test("renders verification as a quality gate workspace", () => {
+    render(
+      <SoftwareDeliveryPageRenderer
+        currentProductPageId="verification"
+        actions={{}}
+        task={{
+          id: "task-verification-1",
+          taskMode: "software_delivery",
+          requirement: "Add reading time and word count to the article detail page.",
+          runTests: true,
+          report: {
+            changedFiles: ["frontend/src/routes/Article/Article.jsx"],
+            testStatus: "passed",
+          },
+          artifacts: [
+            {
+              type: "test_result",
+              title: "Test Result",
+              status: "passed",
+              summary: "Frontend tests passed.",
+              content: {
+                command: "npm test -- frontend/src/App.test.jsx",
+                exitCode: 0,
+                duration: "5.2s",
+                stdout: "28 tests passed",
+                stderr: "",
+                affectedFiles: ["frontend/src/routes/Article/Article.jsx"],
+              },
+            },
+          ],
+        }}
+      />,
+    );
+
+    expect(screen.getByRole("heading", { name: "Verification" })).toBeTruthy();
+    expect(screen.getByText("Verification Summary")).toBeTruthy();
+    expect(screen.getByText("verification status")).toBeTruthy();
+    expect(screen.getByText("Test Command Panel")).toBeTruthy();
+    expect(screen.getByText("registered skill test command")).toBeTruthy();
+    expect(screen.getByText("frontend test command")).toBeTruthy();
+    expect(screen.getByText("Result Evidence")).toBeTruthy();
+    expect(screen.getByText("stdout summary")).toBeTruthy();
+    expect(screen.getByText("exitCode")).toBeTruthy();
+    expect(screen.getByText("Quality Gates")).toBeTruthy();
+    expect(screen.getByText("tests must pass before delivery")).toBeTruthy();
+    expect(screen.getByText("Failure Handling")).toBeTruthy();
+    expect(screen.getByText("capture failing command")).toBeTruthy();
+    expect(screen.getByText("Agent Handoff")).toBeTruthy();
+    expect(screen.getByText("Delivery Agent")).toBeTruthy();
+    expect(screen.getByText("Final Review / Report")).toBeTruthy();
+    expect(screen.getByText("Completion Criteria")).toBeTruthy();
+  });
+
   test("renders all software delivery page skeleton titles", () => {
     for (const page of softwareDeliveryPages) {
       const { unmount } = render(<SoftwareDeliveryPageRenderer currentProductPageId={page.id} actions={{}} />);
@@ -704,6 +757,8 @@ describe("App replay controls", () => {
     expect(screen.getAllByText("Preview Surface").length).toBeGreaterThan(0);
 
     fireEvent.click(screen.getByRole("button", { name: /Verification/ }));
+    expect(screen.getAllByText("Verification Summary").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Test Command Panel").length).toBeGreaterThan(0);
     expect(screen.getAllByText("测试证据是否足够支撑交付？").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Approve Verification").length).toBeGreaterThan(0);
   });
@@ -754,6 +809,8 @@ describe("App replay controls", () => {
     expect(screen.queryByText("Changed Files")).toBeNull();
     expect(screen.queryByText("Effect Summary")).toBeNull();
     expect(screen.queryByText("Preview Surface")).toBeNull();
+    expect(screen.queryByText("Verification Summary")).toBeNull();
+    expect(screen.queryByText("Test Command Panel")).toBeNull();
     expect(screen.queryByRole("button", { name: "创建本地提交" })).toBeNull();
   });
 
