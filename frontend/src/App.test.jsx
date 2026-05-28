@@ -416,6 +416,45 @@ describe("AI page team mechanism", () => {
     expect(screen.getByText("这次任务会改哪里？谁负责？怎么测？")).toBeTruthy();
   });
 
+  test("renders work_breakdown as an execution planning workspace", () => {
+    render(
+      <SoftwareDeliveryPageRenderer
+        currentProductPageId="work_breakdown"
+        actions={{}}
+        task={{
+          id: "task-work-breakdown-1",
+          taskMode: "software_delivery",
+          requirement: "Add reading time and word count to the article detail page, keep push and PR disabled.",
+          applyChanges: false,
+          runTests: true,
+          artifacts: [
+            {
+              type: "work_breakdown",
+              title: "Work Breakdown Document",
+              summary: "Article detail reading time work split",
+            },
+          ],
+        }}
+      />,
+    );
+
+    expect(screen.getByRole("heading", { name: "Work Breakdown" })).toBeTruthy();
+    expect(screen.getByText("Work Packages")).toBeTruthy();
+    expect(screen.getByText("Frontend surface update")).toBeTruthy();
+    expect(screen.getByText("Data model / API impact check")).toBeTruthy();
+    expect(screen.getByText("Dependency Map")).toBeTruthy();
+    expect(screen.getByText("Context Evidence")).toBeTruthy();
+    expect(screen.getByText("Execution Strategy")).toBeTruthy();
+    expect(screen.getByText("Risk Register")).toBeTruthy();
+    expect(screen.getByText("Unsafe git action")).toBeTruthy();
+    expect(screen.getByText("Agent Assignment")).toBeTruthy();
+    expect(screen.getAllByText("Code Writer").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Delivery Agent").length).toBeGreaterThan(0);
+    expect(screen.getByText("Completion Criteria")).toBeTruthy();
+    expect(screen.getByText("push: false")).toBeTruthy();
+    expect(screen.getByText("pr: false")).toBeTruthy();
+  });
+
   test("renders all software delivery page skeleton titles", () => {
     for (const page of softwareDeliveryPages) {
       const { unmount } = render(<SoftwareDeliveryPageRenderer currentProductPageId={page.id} actions={{}} />);
@@ -567,6 +606,8 @@ describe("App replay controls", () => {
     expect(screen.getByText("Algorithm competition skeleton mode does not run repository writes, tests, commits, push, or PR actions.")).toBeTruthy();
     expect(screen.queryByText("Software Delivery Page")).toBeNull();
     expect(screen.queryByText("Requirement DSL Preview")).toBeNull();
+    expect(screen.queryByText("Work Packages")).toBeNull();
+    expect(screen.queryByText("Dependency Map")).toBeNull();
     expect(screen.queryByRole("button", { name: "创建本地提交" })).toBeNull();
   });
 

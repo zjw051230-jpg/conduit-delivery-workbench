@@ -740,6 +740,58 @@ code {
   font-weight: 800;
 }
 
+.work-package-list,
+.risk-register,
+.dependency-chain {
+  display: grid;
+  gap: 10px;
+  margin: 12px 0 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+.work-package-card,
+.risk-register li,
+.dependency-chain li {
+  padding: 12px;
+  background: rgb(2 6 23 / 42%);
+  border: 1px solid rgb(148 163 184 / 12%);
+  border-radius: 12px;
+}
+
+.work-package-card strong,
+.risk-register strong,
+.dependency-chain li {
+  color: #dbeafe;
+}
+
+.work-package-meta {
+  grid-template-columns: 82px minmax(0, 1fr);
+}
+
+.risk-register p,
+.pm-agent-handoff p {
+  margin: 6px 0 0;
+  color: #8fa1bf;
+  line-height: 1.5;
+}
+
+.dependency-chain {
+  counter-reset: dependency-step;
+}
+
+.dependency-chain li {
+  counter-increment: dependency-step;
+}
+
+.dependency-chain li::before {
+  margin-right: 8px;
+  color: #60a5fa;
+  content: counter(dependency-step, decimal-leading-zero);
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 11px;
+}
+
 .artifact-meta-list {
   margin-bottom: 12px;
 }
