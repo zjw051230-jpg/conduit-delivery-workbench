@@ -4,6 +4,20 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import axios from "axios";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { App } from "./App";
+import { pageTeamAssignments, writeLocks } from "./aiTeam/pageTeamAssignments";
+import { SoftwareDeliveryPageRenderer } from "./pages/softwareDelivery/SoftwareDeliveryPageRenderer";
+import { artifactGroups } from "./productFlow/artifactGroups";
+import { softwareDeliveryPages } from "./productFlow/softwareDeliveryFlow";
+import {
+  getArtifactGroupForPage,
+  getDefaultSoftwareDeliveryPage,
+  getNextPage,
+  getPageById,
+  getPageByRouteKey,
+  getPageForArtifactType,
+  getPreviousPage,
+  getVisibleSoftwareDeliveryPages,
+} from "./productFlow/stepNavigation";
 
 vi.mock("axios", () => ({
   default: {
@@ -117,6 +131,7 @@ function createWorkBreakdownArtifact() {
 }
 
 const productStepNames = [
+  "Task Inbox",
   "PM Request",
   "Requirement Brief",
   "Work Breakdown",
@@ -124,7 +139,8 @@ const productStepNames = [
   "Code Changes",
   "Preview / Effect",
   "Verification",
-  "Review & Delivery",
+  "Review",
+  "Delivery",
 ];
 
 const artifactTabNames = ["Requirement", "Breakdown", "Plan", "Code", "Preview", "Tests", "Review", "PR"];
@@ -264,6 +280,131 @@ function createAlgorithmWorkflowTask(overrides = {}) {
   });
 }
 
+describe("AI page team mechanism", () => {
+  const requiredRoleNames = [
+    "Flow Integrator",
+    "Task Inbox Worker",
+    "PM Request Worker",
+    "Requirement Brief Worker",
+    "Work Breakdown Worker",
+    "Implementation Plan Worker",
+    "Code Changes Worker",
+    "Preview Effect Worker",
+    "Verification Worker",
+    "Review Worker",
+    "Delivery Worker",
+    "Artifact Engineer",
+    "QA Gatekeeper",
+  ];
+
+  test("defines all required AI team roles", () => {
+    expect(pageTeamAssignments.map((role) => role.name)).toEqual(expect.arrayContaining(requiredRoleNames));
+  });
+
+  test("gives every page worker owned files", () => {
+    const pageWorkers = pageTeamAssignments.filter((role) => role.id.endsWith("_worker"));
+    expect(pageWorkers).toHaveLength(10);
+    for (const role of pageWorkers) {
+      expect(role.ownedFiles.length).toBeGreaterThan(0);
+      expect(role.outputContract).toBeTruthy();
+      expect(role.testScope).toBeTruthy();
+    }
+  });
+
+  test("locks App.jsx to the Flow Integrator", () => {
+    expect(writeLocks["frontend/src/App.jsx"].allowedRoleIds).toEqual(["flow_integrator"]);
+    expect(pageTeamAssignments.find((role) => role.id === "flow_integrator")?.canEditApp).toBe(true);
+  });
+
+  test("forbids backend and Conduit edits for all frontend page workers", () => {
+    const pageWorkers = pageTeamAssignments.filter((role) => role.id.endsWith("_worker"));
+    for (const role of pageWorkers) {
+      expect(role.canEditBackend).toBe(false);
+      expect(role.canEditConduit).toBe(false);
+      expect(role.forbiddenFiles).toEqual(expect.arrayContaining(["backend/**", "conduit-realworld-example-app/**"]));
+    }
+  });
+
+  test("renders pm_request through the software delivery page renderer", () => {
+    render(<SoftwareDeliveryPageRenderer currentProductPageId="pm_request" actions={{}} />);
+
+    expect(screen.getByRole("heading", { name: "PM Request" })).toBeTruthy();
+    expect(screen.getByText("PM 的原始交付意图是什么？")).toBeTruthy();
+  });
+
+  test("renders work_breakdown through the software delivery page renderer", () => {
+    render(<SoftwareDeliveryPageRenderer currentProductPageId="work_breakdown" actions={{}} />);
+
+    expect(screen.getByRole("heading", { name: "Work Breakdown" })).toBeTruthy();
+    expect(screen.getByText("这次任务会改哪里？谁负责？怎么测？")).toBeTruthy();
+  });
+
+  test("renders all software delivery page skeleton titles", () => {
+    for (const page of softwareDeliveryPages) {
+      const { unmount } = render(<SoftwareDeliveryPageRenderer currentProductPageId={page.id} actions={{}} />);
+      expect(screen.getByRole("heading", { name: page.title })).toBeTruthy();
+      unmount();
+    }
+  });
+});
+
+describe("software delivery product flow config", () => {
+  const expectedOrder = [
+    "task_inbox",
+    "pm_request",
+    "requirement_brief",
+    "work_breakdown",
+    "implementation_plan",
+    "code_changes",
+    "preview_effect",
+    "verification",
+    "review",
+    "delivery",
+  ];
+
+  test("defines the fixed 10-page software delivery chain", () => {
+    expect(softwareDeliveryPages.map((page) => page.id)).toEqual(expectedOrder);
+    expect(softwareDeliveryPages).toHaveLength(10);
+    expect(softwareDeliveryPages.some((page) => page.id === "algorithm_competition")).toBe(false);
+  });
+
+  test("defines required fields for every software delivery page", () => {
+    for (const page of softwareDeliveryPages) {
+      expect(page.id).toBeTruthy();
+      expect(page.title).toBeTruthy();
+      expect(page.artifactType).toBeTruthy();
+      expect(page.producedArtifact).toBeTruthy();
+      expect(page.viewLocation).toBeTruthy();
+      expect(page.primaryAction).toBeTruthy();
+      expect(Boolean(page.nextPage || page.previousPage)).toBe(true);
+    }
+  });
+
+  test("defines artifact groups and artifact type mapping", () => {
+    expect(artifactGroups.map((group) => group.id)).toEqual(["requirement", "breakdown", "plan", "code", "preview", "tests", "review", "pr"]);
+    expect(artifactGroups.find((group) => group.id === "requirement")?.artifactTypes).toEqual(["pm_request", "requirement_brief"]);
+    expect(artifactGroups.find((group) => group.id === "breakdown")?.artifactTypes).toEqual(["work_breakdown"]);
+    expect(artifactGroups.find((group) => group.id === "plan")?.artifactTypes).toEqual(["implementation_plan"]);
+    expect(artifactGroups.find((group) => group.id === "code")?.artifactTypes).toEqual(["code_diff"]);
+    expect(artifactGroups.find((group) => group.id === "preview")?.artifactTypes).toEqual(["effect_preview"]);
+    expect(artifactGroups.find((group) => group.id === "tests")?.artifactTypes).toEqual(["test_result"]);
+    expect(artifactGroups.find((group) => group.id === "review")?.artifactTypes).toEqual(["review_report"]);
+    expect(artifactGroups.find((group) => group.id === "pr")?.artifactTypes).toEqual(["local_commit", "pr_readiness", "pr_preview"]);
+  });
+
+  test("navigates pages and artifact groups through helpers", () => {
+    expect(getDefaultSoftwareDeliveryPage().id).toBe("pm_request");
+    expect(getVisibleSoftwareDeliveryPages().map((page) => page.id)).toEqual(expectedOrder);
+    expect(getPageById("work_breakdown").routeKey).toBe("breakdown");
+    expect(getPageByRouteKey("code").id).toBe("code_changes");
+    expect(getNextPage("work_breakdown").id).toBe("implementation_plan");
+    expect(getPreviousPage("work_breakdown").id).toBe("requirement_brief");
+    expect(getArtifactGroupForPage("work_breakdown").id).toBe("breakdown");
+    expect(getPageForArtifactType("work_breakdown").id).toBe("work_breakdown");
+    expect(getPageForArtifactType("pr_preview").id).toBe("delivery");
+  });
+});
+
 describe("App replay controls", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -275,16 +416,36 @@ describe("App replay controls", () => {
 
     expect(await screen.findByRole("button", { name: "Software delivery" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Labs / Debug Workflow" })).toBeTruthy();
-    expect(container.querySelectorAll(".timeline-step")).toHaveLength(8);
+    expect(container.querySelectorAll(".timeline-step")).toHaveLength(10);
     for (const stepName of productStepNames) {
-      expect(screen.getByText(stepName)).toBeTruthy();
+      expect(screen.getAllByText(stepName).length).toBeGreaterThan(0);
     }
-    expect(screen.getAllByText("Produced artifact")).toHaveLength(8);
-    expect(screen.getAllByText("View location")).toHaveLength(8);
-    expect(screen.getAllByText("Next action")).toHaveLength(8);
+    expect(screen.getAllByText("Produced artifact")).toHaveLength(12);
+    expect(screen.getAllByText("View location")).toHaveLength(12);
+    expect(screen.getAllByText("Next action")).toHaveLength(10);
+    expect(screen.getAllByText("PM 的原始交付意图是什么？").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Current page + Evidence Drawer → Requirement").length).toBeGreaterThan(0);
+    expect(screen.getByText("Software Delivery Page")).toBeTruthy();
     for (const tabName of artifactTabNames) {
       expect(screen.getByRole("button", { name: tabName })).toBeTruthy();
     }
+  });
+
+  test("switches the current product page by clicking delivery steps", async () => {
+    render(<App />);
+
+    expect(await screen.findByRole("button", { name: "Software delivery" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: /Work Breakdown/ }));
+    expect(screen.getAllByText("这次任务会改哪里？谁负责？怎么测？").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Approve Breakdown").length).toBeGreaterThan(0);
+
+    fireEvent.click(screen.getByRole("button", { name: /Code Changes/ }));
+    expect(screen.getAllByText("代码会产生哪些文件级变化？").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Open Diff Review").length).toBeGreaterThan(0);
+
+    fireEvent.click(screen.getByRole("button", { name: /Verification/ }));
+    expect(screen.getAllByText("测试证据是否足够支撑交付？").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Approve Verification").length).toBeGreaterThan(0);
   });
 
   test("submits and renders an algorithm competition skeleton run", async () => {
@@ -323,6 +484,7 @@ describe("App replay controls", () => {
     expect(screen.getByText("No push")).toBeTruthy();
     expect(screen.getByText("No PR")).toBeTruthy();
     expect(screen.getByText("Algorithm competition skeleton mode does not run repository writes, tests, commits, push, or PR actions.")).toBeTruthy();
+    expect(screen.queryByText("Software Delivery Page")).toBeNull();
     expect(screen.queryByRole("button", { name: "创建本地提交" })).toBeNull();
   });
 
