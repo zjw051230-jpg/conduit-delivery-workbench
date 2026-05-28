@@ -139,7 +139,7 @@ const productStepNames = [
   "Code Changes",
   "Preview / Effect",
   "Verification",
-  "Review",
+  "Audit Console",
   "Delivery",
 ];
 
@@ -638,13 +638,13 @@ describe("AI page team mechanism", () => {
     expect(screen.getByText("Completion Criteria")).toBeTruthy();
   });
 
-  test("renders review as a pre-delivery decision checkpoint", () => {
+  test("renders audit console as a pre-delivery audit workspace", () => {
     render(
       <SoftwareDeliveryPageRenderer
         currentProductPageId="review"
         actions={{}}
         task={{
-          id: "task-review-1",
+          id: "task-audit-1",
           taskMode: "software_delivery",
           requirement: "Add reading time and word count to the article detail page.",
           runTests: true,
@@ -665,22 +665,24 @@ describe("AI page team mechanism", () => {
       />,
     );
 
-    expect(screen.getByRole("heading", { name: "Review" })).toBeTruthy();
-    expect(screen.getByText("Review Summary")).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Audit Console" })).toBeTruthy();
+    expect(screen.getByText("Audit Summary")).toBeTruthy();
+    expect(screen.getByText("audit status")).toBeTruthy();
     expect(screen.getByText("requirement readiness")).toBeTruthy();
-    expect(screen.getByText("Review Checklist")).toBeTruthy();
-    expect(screen.getByText("requirement captured")).toBeTruthy();
-    expect(screen.getByText("Evidence Board")).toBeTruthy();
+    expect(screen.getByText("Evidence Ledger")).toBeTruthy();
     expect(screen.getByText("Delivery Report pending")).toBeTruthy();
+    expect(screen.getByText("Risk Register")).toBeTruthy();
+    expect(screen.getByText("incomplete preview evidence")).toBeTruthy();
+    expect(screen.getByText("Gate Checklist")).toBeTruthy();
+    expect(screen.getByText("requirement captured")).toBeTruthy();
     expect(screen.getByText("Decision Panel")).toBeTruthy();
-    expect(screen.getAllByText("ready for delivery report").length).toBeGreaterThan(0);
-    expect(screen.getByText("Risk Review")).toBeTruthy();
-    expect(screen.getByText("unsafe remote action")).toBeTruthy();
-    expect(screen.getByText("Safety Gates")).toBeTruthy();
-    expect(screen.getByText("no push by default")).toBeTruthy();
-    expect(screen.getByText("no PR by default")).toBeTruthy();
-    expect(screen.getByText("Agent Handoff")).toBeTruthy();
-    expect(screen.getByText("Final Report / Archive")).toBeTruthy();
+    expect(screen.getAllByText("ready for delivery page").length).toBeGreaterThan(0);
+    expect(screen.getByText("Remote Safety Audit")).toBeTruthy();
+    expect(screen.getByText("No push by default")).toBeTruthy();
+    expect(screen.getByText("No PR by default")).toBeTruthy();
+    expect(screen.getByText("No gh pr create")).toBeTruthy();
+    expect(screen.getByText("Agent Accountability")).toBeTruthy();
+    expect(screen.getByText("PR Delivery Agent")).toBeTruthy();
     expect(screen.getByText("Completion Criteria")).toBeTruthy();
   });
 
@@ -808,9 +810,10 @@ describe("App replay controls", () => {
     expect(screen.getAllByText("测试证据是否足够支撑交付？").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Approve Verification").length).toBeGreaterThan(0);
 
-    fireEvent.click(screen.getAllByRole("button", { name: /Review/ }).find((button) => button.querySelector("span")?.textContent === "Review"));
-    expect(screen.getAllByText("Review Summary").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Review Checklist").length).toBeGreaterThan(0);
+    fireEvent.click(screen.getByRole("button", { name: /Audit Console/ }));
+    expect(screen.getAllByText("Audit Summary").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Evidence Ledger").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Remote Safety Audit").length).toBeGreaterThan(0);
   });
 
   test("submits and renders an algorithm competition skeleton run", async () => {
@@ -861,8 +864,9 @@ describe("App replay controls", () => {
     expect(screen.queryByText("Preview Surface")).toBeNull();
     expect(screen.queryByText("Verification Summary")).toBeNull();
     expect(screen.queryByText("Test Command Panel")).toBeNull();
-    expect(screen.queryByText("Review Summary")).toBeNull();
-    expect(screen.queryByText("Review Checklist")).toBeNull();
+    expect(screen.queryByText("Audit Summary")).toBeNull();
+    expect(screen.queryByText("Evidence Ledger")).toBeNull();
+    expect(screen.queryByText("Remote Safety Audit")).toBeNull();
     expect(screen.queryByRole("button", { name: "创建本地提交" })).toBeNull();
   });
 
