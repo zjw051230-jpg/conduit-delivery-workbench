@@ -686,6 +686,49 @@ describe("AI page team mechanism", () => {
     expect(screen.getByText("Completion Criteria")).toBeTruthy();
   });
 
+  test("renders delivery as a local handoff and commit readiness workspace", () => {
+    render(
+      <SoftwareDeliveryPageRenderer
+        currentProductPageId="delivery"
+        actions={{}}
+        task={{
+          id: "task-delivery-1",
+          taskMode: "software_delivery",
+          requirement: "Add reading time and word count to the article detail page.",
+          runTests: true,
+          report: {
+            summary: "Reading metadata implementation is ready for delivery review.",
+            changedFiles: ["frontend/src/routes/Article/Article.jsx"],
+            testStatus: "passed",
+            nextActions: ["Create local commit after user approval"],
+          },
+          artifacts: [
+            { type: "code_diff", title: "Code Changes", summary: "Changed files captured" },
+            { type: "test_result", title: "Test Result", status: "passed", summary: "Tests passed" },
+            { type: "review_report", title: "Audit Console", status: "ready", summary: "Audit gates reviewed" },
+          ],
+        }}
+      />,
+    );
+
+    expect(screen.getByRole("heading", { name: "Delivery" })).toBeTruthy();
+    expect(screen.getByText("Delivery Summary")).toBeTruthy();
+    expect(screen.getByText("delivery readiness")).toBeTruthy();
+    expect(screen.getByText("Delivery Report Preview")).toBeTruthy();
+    expect(screen.getByText("Reading metadata implementation is ready for delivery review.")).toBeTruthy();
+    expect(screen.getByText("Local Commit Gate")).toBeTruthy();
+    expect(screen.getByText("delivery report required")).toBeTruthy();
+    expect(screen.getByText("Artifact Handoff")).toBeTruthy();
+    expect(screen.getByText("PR Preview pending")).toBeTruthy();
+    expect(screen.getByText("Safety Console")).toBeTruthy();
+    expect(screen.getByText("No push")).toBeTruthy();
+    expect(screen.getByText("No PR")).toBeTruthy();
+    expect(screen.getByText("No gh pr create")).toBeTruthy();
+    expect(screen.getByText("Agent Accountability")).toBeTruthy();
+    expect(screen.getByText("Delivery Agent")).toBeTruthy();
+    expect(screen.getByText("Completion Criteria")).toBeTruthy();
+  });
+
   test("renders all software delivery page skeleton titles", () => {
     for (const page of softwareDeliveryPages) {
       const { unmount } = render(<SoftwareDeliveryPageRenderer currentProductPageId={page.id} actions={{}} />);
@@ -814,6 +857,12 @@ describe("App replay controls", () => {
     expect(screen.getAllByText("Audit Summary").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Evidence Ledger").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Remote Safety Audit").length).toBeGreaterThan(0);
+
+    fireEvent.click(screen.getByRole("button", { name: /Delivery/ }));
+    expect(screen.getAllByText("Delivery Summary").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Delivery Report Preview").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Local Commit Gate").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Safety Console").length).toBeGreaterThan(0);
   });
 
   test("submits and renders an algorithm competition skeleton run", async () => {
@@ -867,6 +916,9 @@ describe("App replay controls", () => {
     expect(screen.queryByText("Audit Summary")).toBeNull();
     expect(screen.queryByText("Evidence Ledger")).toBeNull();
     expect(screen.queryByText("Remote Safety Audit")).toBeNull();
+    expect(screen.queryByText("Delivery Report Preview")).toBeNull();
+    expect(screen.queryByText("Local Commit Gate")).toBeNull();
+    expect(screen.queryByText("Safety Console")).toBeNull();
     expect(screen.queryByRole("button", { name: "创建本地提交" })).toBeNull();
   });
 
