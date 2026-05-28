@@ -542,6 +542,49 @@ describe("AI page team mechanism", () => {
     expect(screen.getByText("Completion Criteria")).toBeTruthy();
   });
 
+  test("renders preview_effect as a user impact preview workspace", () => {
+    render(
+      <SoftwareDeliveryPageRenderer
+        currentProductPageId="preview_effect"
+        actions={{}}
+        task={{
+          id: "task-preview-effect-1",
+          taskMode: "software_delivery",
+          requirement: "Add reading time and word count to the article detail page.",
+          runTests: true,
+          artifacts: [
+            {
+              type: "effect_preview",
+              title: "Effect Preview",
+              summary: "Article detail page shows reading metadata.",
+              content: {
+                userVisibleOutcome: "Readers can see word count and estimated reading time.",
+                targetSurface: "Article detail page",
+              },
+            },
+          ],
+        }}
+      />,
+    );
+
+    expect(screen.getByRole("heading", { name: "Preview / Effect" })).toBeTruthy();
+    expect(screen.getByText("Effect Summary")).toBeTruthy();
+    expect(screen.getByText("user-visible outcome")).toBeTruthy();
+    expect(screen.getByText("Preview Surface")).toBeTruthy();
+    expect(screen.getByText("UI impact preview")).toBeTruthy();
+    expect(screen.getByText("changed behavior preview")).toBeTruthy();
+    expect(screen.getByText("Before / After Comparison")).toBeTruthy();
+    expect(screen.getByText("before: current product behavior")).toBeTruthy();
+    expect(screen.getByText("after: expected new behavior")).toBeTruthy();
+    expect(screen.getByText("Acceptance Signal")).toBeTruthy();
+    expect(screen.getByText("visible UI change")).toBeTruthy();
+    expect(screen.getByText("Risk / UX Impact")).toBeTruthy();
+    expect(screen.getByText("visual regression")).toBeTruthy();
+    expect(screen.getByText("Agent Handoff")).toBeTruthy();
+    expect(screen.getByText("QA / Verification stage")).toBeTruthy();
+    expect(screen.getByText("Completion Criteria")).toBeTruthy();
+  });
+
   test("renders all software delivery page skeleton titles", () => {
     for (const page of softwareDeliveryPages) {
       const { unmount } = render(<SoftwareDeliveryPageRenderer currentProductPageId={page.id} actions={{}} />);
@@ -656,6 +699,10 @@ describe("App replay controls", () => {
     expect(screen.getAllByText("代码会产生哪些文件级变化？").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Open Diff Review").length).toBeGreaterThan(0);
 
+    fireEvent.click(screen.getByRole("button", { name: /Preview \/ Effect/ }));
+    expect(screen.getAllByText("Effect Summary").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Preview Surface").length).toBeGreaterThan(0);
+
     fireEvent.click(screen.getByRole("button", { name: /Verification/ }));
     expect(screen.getAllByText("测试证据是否足够支撑交付？").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Approve Verification").length).toBeGreaterThan(0);
@@ -705,6 +752,8 @@ describe("App replay controls", () => {
     expect(screen.queryByText("Module Touch Plan")).toBeNull();
     expect(screen.queryByText("Change Summary")).toBeNull();
     expect(screen.queryByText("Changed Files")).toBeNull();
+    expect(screen.queryByText("Effect Summary")).toBeNull();
+    expect(screen.queryByText("Preview Surface")).toBeNull();
     expect(screen.queryByRole("button", { name: "创建本地提交" })).toBeNull();
   });
 
