@@ -371,6 +371,44 @@ describe("AI page team mechanism", () => {
     expect(screen.getByText("下一步：生成 Requirement Brief")).toBeTruthy();
   });
 
+  test("renders requirement_brief as a structured brief workspace", () => {
+    render(
+      <SoftwareDeliveryPageRenderer
+        currentProductPageId="requirement_brief"
+        actions={{}}
+        task={{
+          id: "task-requirement-brief-1",
+          taskMode: "software_delivery",
+          requirement: "给文章详情页增加阅读时间统计，显示字数和预计阅读时间，验收标准是页面可见并有测试。",
+          applyChanges: false,
+          runTests: true,
+          artifacts: [
+            {
+              type: "requirement_brief",
+              title: "Requirement Brief",
+              summary: "文章详情页阅读时间统计结构化简报",
+            },
+          ],
+        }}
+      />,
+    );
+
+    expect(screen.getByRole("heading", { name: "Requirement Brief" })).toBeTruthy();
+    expect(screen.getByText("Brief Summary")).toBeTruthy();
+    expect(screen.getByText("用户目标")).toBeTruthy();
+    expect(screen.getByText("目标对象 / 页面 / 模块")).toBeTruthy();
+    expect(screen.getByText("Clarification Questions")).toBeTruthy();
+    expect(screen.getByText("UI 应该展示在哪里？")).toBeTruthy();
+    expect(screen.getByText("Acceptance Criteria")).toBeTruthy();
+    expect(screen.getByText("不触发 push / PR")).toBeTruthy();
+    expect(screen.getByText("Requirement DSL Preview")).toBeTruthy();
+    expect(screen.getByText(/targetSurface/)).toBeTruthy();
+    expect(screen.getByText("Context / RAG Agent")).toBeTruthy();
+    expect(screen.getByText("Solution Planner")).toBeTruthy();
+    expect(screen.getByText("push: false")).toBeTruthy();
+    expect(screen.getByText("pr: false")).toBeTruthy();
+  });
+
   test("renders work_breakdown through the software delivery page renderer", () => {
     render(<SoftwareDeliveryPageRenderer currentProductPageId="work_breakdown" actions={{}} />);
 
@@ -478,6 +516,10 @@ describe("App replay controls", () => {
     expect(screen.getAllByText("这次任务会改哪里？谁负责？怎么测？").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Approve Breakdown").length).toBeGreaterThan(0);
 
+    fireEvent.click(screen.getByRole("button", { name: /Requirement Brief/ }));
+    expect(screen.getAllByText("Brief Summary").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Clarification Questions").length).toBeGreaterThan(0);
+
     fireEvent.click(screen.getByRole("button", { name: /Code Changes/ }));
     expect(screen.getAllByText("代码会产生哪些文件级变化？").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Open Diff Review").length).toBeGreaterThan(0);
@@ -524,6 +566,7 @@ describe("App replay controls", () => {
     expect(screen.getByText("No PR")).toBeTruthy();
     expect(screen.getByText("Algorithm competition skeleton mode does not run repository writes, tests, commits, push, or PR actions.")).toBeTruthy();
     expect(screen.queryByText("Software Delivery Page")).toBeNull();
+    expect(screen.queryByText("Requirement DSL Preview")).toBeNull();
     expect(screen.queryByRole("button", { name: "创建本地提交" })).toBeNull();
   });
 

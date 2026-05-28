@@ -712,6 +712,34 @@ code {
   border-radius: 16px;
 }
 
+.requirement-summary-list {
+  grid-template-columns: 150px minmax(0, 1fr);
+}
+
+.requirement-question-list {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+.requirement-question-list li {
+  padding: 10px 12px;
+  color: #dbeafe;
+  background: rgb(2 6 23 / 42%);
+  border: 1px solid rgb(148 163 184 / 12%);
+  border-radius: 12px;
+}
+
+.requirement-question-list li::before {
+  margin-right: 8px;
+  color: #fbbf24;
+  content: "?";
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-weight: 800;
+}
+
 .artifact-meta-list {
   margin-bottom: 12px;
 }
