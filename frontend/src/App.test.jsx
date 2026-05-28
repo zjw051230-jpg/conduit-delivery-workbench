@@ -496,6 +496,52 @@ describe("AI page team mechanism", () => {
     expect(screen.getByText("Completion Criteria")).toBeTruthy();
   });
 
+  test("renders code_changes as a code change evidence workspace", () => {
+    render(
+      <SoftwareDeliveryPageRenderer
+        currentProductPageId="code_changes"
+        actions={{}}
+        task={{
+          id: "task-code-changes-1",
+          taskMode: "software_delivery",
+          requirement: "Add reading time and word count to the article detail page.",
+          applyChanges: false,
+          runTests: true,
+          changedFiles: ["frontend/src/routes/Article/Article.jsx"],
+          artifacts: [
+            {
+              type: "code_diff",
+              title: "Code Diff",
+              summary: "Article detail reading metadata preview",
+              content: {
+                changedFiles: ["frontend/src/routes/Article/Article.jsx"],
+                diffSummary: "frontend/src/routes/Article/Article.jsx | 8 ++++++++",
+              },
+            },
+          ],
+        }}
+      />,
+    );
+
+    expect(screen.getByRole("heading", { name: "Code Changes" })).toBeTruthy();
+    expect(screen.getByText("Change Summary")).toBeTruthy();
+    expect(screen.getByText("change intent")).toBeTruthy();
+    expect(screen.getByText("Changed Files")).toBeTruthy();
+    expect(screen.getAllByText("frontend/src/routes/Article/Article.jsx").length).toBeGreaterThan(0);
+    expect(screen.getByText("File Change Cards")).toBeTruthy();
+    expect(screen.getByText("Writer Execution State")).toBeTruthy();
+    expect(screen.getByText("preview only")).toBeTruthy();
+    expect(screen.getByText("Diff / Patch Preview")).toBeTruthy();
+    expect(screen.getByText(/8 \+\+\+\+\+\+\+\+/)).toBeTruthy();
+    expect(screen.getByText("Safety Gates")).toBeTruthy();
+    expect(screen.getByText("No direct push")).toBeTruthy();
+    expect(screen.getByText("No PR by default")).toBeTruthy();
+    expect(screen.getByText("Agent Handoff")).toBeTruthy();
+    expect(screen.getByText("Test Runner Agent")).toBeTruthy();
+    expect(screen.getByText("PR Delivery Agent")).toBeTruthy();
+    expect(screen.getByText("Completion Criteria")).toBeTruthy();
+  });
+
   test("renders all software delivery page skeleton titles", () => {
     for (const page of softwareDeliveryPages) {
       const { unmount } = render(<SoftwareDeliveryPageRenderer currentProductPageId={page.id} actions={{}} />);
@@ -605,6 +651,8 @@ describe("App replay controls", () => {
     expect(screen.getAllByText("Clarification Questions").length).toBeGreaterThan(0);
 
     fireEvent.click(screen.getByRole("button", { name: /Code Changes/ }));
+    expect(screen.getAllByText("Change Summary").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Changed Files").length).toBeGreaterThan(0);
     expect(screen.getAllByText("代码会产生哪些文件级变化？").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Open Diff Review").length).toBeGreaterThan(0);
 
@@ -655,6 +703,8 @@ describe("App replay controls", () => {
     expect(screen.queryByText("Dependency Map")).toBeNull();
     expect(screen.queryByText("Plan Overview")).toBeNull();
     expect(screen.queryByText("Module Touch Plan")).toBeNull();
+    expect(screen.queryByText("Change Summary")).toBeNull();
+    expect(screen.queryByText("Changed Files")).toBeNull();
     expect(screen.queryByRole("button", { name: "创建本地提交" })).toBeNull();
   });
 
