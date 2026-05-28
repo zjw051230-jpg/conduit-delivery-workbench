@@ -330,6 +330,45 @@ describe("AI page team mechanism", () => {
 
     expect(screen.getByRole("heading", { name: "PM Request" })).toBeTruthy();
     expect(screen.getByText("PM 的原始交付意图是什么？")).toBeTruthy();
+    expect(screen.getByText("输入一个软件交付需求")).toBeTruthy();
+    expect(screen.getByText("例如：给文章详情页增加阅读时间统计")).toBeTruthy();
+    expect(screen.getByText("taskMode: software_delivery")).toBeTruthy();
+    expect(screen.getAllByText("push: false").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("pr: false").length).toBeGreaterThan(0);
+    expect(screen.getByText("PM Clarifier")).toBeTruthy();
+    expect(screen.getByText("Requirement DSL Agent")).toBeTruthy();
+    expect(screen.getByText("Delivery Report")).toBeTruthy();
+  });
+
+  test("renders submitted PM requirement and deterministic quality checks", () => {
+    render(
+      <SoftwareDeliveryPageRenderer
+        currentProductPageId="pm_request"
+        actions={{}}
+        task={{
+          id: "task-pm-request-1",
+          taskMode: "software_delivery",
+          requirement: "给文章详情页增加阅读时间统计，显示字数和预计阅读时间，验收标准是页面可见并有测试。",
+          applyChanges: false,
+          runTests: true,
+          artifacts: [
+            {
+              type: "pm_request",
+              title: "PM Request",
+              summary: "文章详情页阅读时间统计",
+            },
+          ],
+        }}
+      />,
+    );
+
+    expect(screen.getByText(/给文章详情页增加阅读时间统计/)).toBeTruthy();
+    expect(screen.getByText("applyChanges: false")).toBeTruthy();
+    expect(screen.getByText("runTests: true")).toBeTruthy();
+    expect(screen.getByText("目标页面 / 模块")).toBeTruthy();
+    expect(screen.getByText("用户可见行为")).toBeTruthy();
+    expect(screen.getByText("验收标准")).toBeTruthy();
+    expect(screen.getByText("下一步：生成 Requirement Brief")).toBeTruthy();
   });
 
   test("renders work_breakdown through the software delivery page renderer", () => {
@@ -646,10 +685,10 @@ describe("App replay controls", () => {
     fireEvent.click(screen.getByRole("button", { name: "启动 AI 编排链路" }));
 
     expect(await screen.findByText("task-1")).toBeTruthy();
-    expect(screen.getByText("Context Evidence")).toBeTruthy();
+    expect(screen.getAllByText("Context Evidence").length).toBeGreaterThan(0);
     expect(screen.getAllByText("frontend/src/components/PopularTags/TagButton.jsx").length).toBeGreaterThan(0);
-    expect(screen.getByText("push: false")).toBeTruthy();
-    expect(screen.getByText("pr: false")).toBeTruthy();
+    expect(screen.getAllByText("push: false").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("pr: false").length).toBeGreaterThan(0);
   });
 
   test("replays the current task as an apply run", async () => {
