@@ -455,6 +455,47 @@ describe("AI page team mechanism", () => {
     expect(screen.getByText("pr: false")).toBeTruthy();
   });
 
+  test("renders implementation_plan as an engineering execution blueprint", () => {
+    render(
+      <SoftwareDeliveryPageRenderer
+        currentProductPageId="implementation_plan"
+        actions={{}}
+        task={{
+          id: "task-implementation-plan-1",
+          taskMode: "software_delivery",
+          requirement: "Add reading time and word count to the article detail page, keep push and PR disabled.",
+          applyChanges: false,
+          runTests: true,
+          artifacts: [
+            {
+              type: "implementation_plan",
+              title: "Implementation Plan",
+              summary: "Article detail reading time implementation plan",
+            },
+          ],
+        }}
+      />,
+    );
+
+    expect(screen.getByRole("heading", { name: "Implementation Plan" })).toBeTruthy();
+    expect(screen.getByText("Plan Overview")).toBeTruthy();
+    expect(screen.getByText("user goal")).toBeTruthy();
+    expect(screen.getByText("Module Touch Plan")).toBeTruthy();
+    expect(screen.getByText("Frontend route / page")).toBeTruthy();
+    expect(screen.getByText("Frontend component")).toBeTruthy();
+    expect(screen.getByText("Step-by-step Implementation Sequence")).toBeTruthy();
+    expect(screen.getByText("locate target files")).toBeTruthy();
+    expect(screen.getByText("Test Plan")).toBeTruthy();
+    expect(screen.getByText("build check")).toBeTruthy();
+    expect(screen.getByText("Safety Gates")).toBeTruthy();
+    expect(screen.getByText("push disabled")).toBeTruthy();
+    expect(screen.getByText("PR disabled")).toBeTruthy();
+    expect(screen.getByText("Agent Handoff")).toBeTruthy();
+    expect(screen.getByText("Code Writer Agent")).toBeTruthy();
+    expect(screen.getByText("Test Runner Agent")).toBeTruthy();
+    expect(screen.getByText("Completion Criteria")).toBeTruthy();
+  });
+
   test("renders all software delivery page skeleton titles", () => {
     for (const page of softwareDeliveryPages) {
       const { unmount } = render(<SoftwareDeliveryPageRenderer currentProductPageId={page.id} actions={{}} />);
@@ -555,6 +596,10 @@ describe("App replay controls", () => {
     expect(screen.getAllByText("这次任务会改哪里？谁负责？怎么测？").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Approve Breakdown").length).toBeGreaterThan(0);
 
+    fireEvent.click(screen.getByRole("button", { name: /Implementation Plan/ }));
+    expect(screen.getAllByText("Plan Overview").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Module Touch Plan").length).toBeGreaterThan(0);
+
     fireEvent.click(screen.getByRole("button", { name: /Requirement Brief/ }));
     expect(screen.getAllByText("Brief Summary").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Clarification Questions").length).toBeGreaterThan(0);
@@ -608,6 +653,8 @@ describe("App replay controls", () => {
     expect(screen.queryByText("Requirement DSL Preview")).toBeNull();
     expect(screen.queryByText("Work Packages")).toBeNull();
     expect(screen.queryByText("Dependency Map")).toBeNull();
+    expect(screen.queryByText("Plan Overview")).toBeNull();
+    expect(screen.queryByText("Module Touch Plan")).toBeNull();
     expect(screen.queryByRole("button", { name: "创建本地提交" })).toBeNull();
   });
 
