@@ -638,6 +638,52 @@ describe("AI page team mechanism", () => {
     expect(screen.getByText("Completion Criteria")).toBeTruthy();
   });
 
+  test("renders review as a pre-delivery decision checkpoint", () => {
+    render(
+      <SoftwareDeliveryPageRenderer
+        currentProductPageId="review"
+        actions={{}}
+        task={{
+          id: "task-review-1",
+          taskMode: "software_delivery",
+          requirement: "Add reading time and word count to the article detail page.",
+          runTests: true,
+          report: {
+            changedFiles: ["frontend/src/routes/Article/Article.jsx"],
+            testStatus: "passed",
+          },
+          artifacts: [
+            { type: "pm_request", title: "PM Request", summary: "Reading time request" },
+            { type: "requirement_brief", title: "Requirement Brief", summary: "Structured brief" },
+            { type: "work_breakdown", title: "Work Breakdown", summary: "Breakdown ready" },
+            { type: "implementation_plan", title: "Implementation Plan", summary: "Plan ready" },
+            { type: "code_diff", title: "Code Changes", summary: "Changed files captured" },
+            { type: "effect_preview", title: "Preview / Effect", summary: "Effect reviewed" },
+            { type: "test_result", title: "Verification Result", status: "passed", summary: "Tests passed" },
+          ],
+        }}
+      />,
+    );
+
+    expect(screen.getByRole("heading", { name: "Review" })).toBeTruthy();
+    expect(screen.getByText("Review Summary")).toBeTruthy();
+    expect(screen.getByText("requirement readiness")).toBeTruthy();
+    expect(screen.getByText("Review Checklist")).toBeTruthy();
+    expect(screen.getByText("requirement captured")).toBeTruthy();
+    expect(screen.getByText("Evidence Board")).toBeTruthy();
+    expect(screen.getByText("Delivery Report pending")).toBeTruthy();
+    expect(screen.getByText("Decision Panel")).toBeTruthy();
+    expect(screen.getAllByText("ready for delivery report").length).toBeGreaterThan(0);
+    expect(screen.getByText("Risk Review")).toBeTruthy();
+    expect(screen.getByText("unsafe remote action")).toBeTruthy();
+    expect(screen.getByText("Safety Gates")).toBeTruthy();
+    expect(screen.getByText("no push by default")).toBeTruthy();
+    expect(screen.getByText("no PR by default")).toBeTruthy();
+    expect(screen.getByText("Agent Handoff")).toBeTruthy();
+    expect(screen.getByText("Final Report / Archive")).toBeTruthy();
+    expect(screen.getByText("Completion Criteria")).toBeTruthy();
+  });
+
   test("renders all software delivery page skeleton titles", () => {
     for (const page of softwareDeliveryPages) {
       const { unmount } = render(<SoftwareDeliveryPageRenderer currentProductPageId={page.id} actions={{}} />);
@@ -761,6 +807,10 @@ describe("App replay controls", () => {
     expect(screen.getAllByText("Test Command Panel").length).toBeGreaterThan(0);
     expect(screen.getAllByText("测试证据是否足够支撑交付？").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Approve Verification").length).toBeGreaterThan(0);
+
+    fireEvent.click(screen.getAllByRole("button", { name: /Review/ }).find((button) => button.querySelector("span")?.textContent === "Review"));
+    expect(screen.getAllByText("Review Summary").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Review Checklist").length).toBeGreaterThan(0);
   });
 
   test("submits and renders an algorithm competition skeleton run", async () => {
@@ -811,6 +861,8 @@ describe("App replay controls", () => {
     expect(screen.queryByText("Preview Surface")).toBeNull();
     expect(screen.queryByText("Verification Summary")).toBeNull();
     expect(screen.queryByText("Test Command Panel")).toBeNull();
+    expect(screen.queryByText("Review Summary")).toBeNull();
+    expect(screen.queryByText("Review Checklist")).toBeNull();
     expect(screen.queryByRole("button", { name: "创建本地提交" })).toBeNull();
   });
 
