@@ -139,8 +139,8 @@ const productStepNames = [
   "Code Changes",
   "Preview / Effect",
   "Verification",
-  "Review",
-  "Delivery",
+  "Audit Console",
+  "PR / Final Report",
 ];
 
 const artifactTabNames = ["Requirement", "Breakdown", "Plan", "Code", "Preview", "Tests", "Review", "PR"];
@@ -325,27 +325,124 @@ describe("AI page team mechanism", () => {
     }
   });
 
-  test("renders pm_request through the software delivery page renderer", () => {
+  test("renders pm_request through the software delivery workbench preview", () => {
     render(<SoftwareDeliveryPageRenderer currentProductPageId="pm_request" actions={{}} />);
 
     expect(screen.getByRole("heading", { name: "PM Request" })).toBeTruthy();
-    expect(screen.getByText("PM 的原始交付意图是什么？")).toBeTruthy();
+    expect(screen.getByText("Agent Workspace Preview")).toBeTruthy();
+    expect(screen.getByText("Requirement Input")).toBeTruthy();
+    expect(screen.getByText("Intent Understanding")).toBeTruthy();
+    expect(screen.getAllByText("Task intake and intent capture").length).toBeGreaterThan(0);
+    expect(screen.getByText("No automatic push")).toBeTruthy();
+    expect(screen.getByText("No automatic gh pr create")).toBeTruthy();
+    expect(screen.getByText("explicit user approval required")).toBeTruthy();
   });
 
-  test("renders work_breakdown through the software delivery page renderer", () => {
-    render(<SoftwareDeliveryPageRenderer currentProductPageId="work_breakdown" actions={{}} />);
+  test("renders step-specific software delivery workbench screens", () => {
+    const cases = [
+      ["requirement_brief", "Brief Summary", "Structured Requirement Brief"],
+      ["work_breakdown", "Task Breakdown Board", "Work Packages"],
+      ["implementation_plan", "Plan Overview", "Implementation Board"],
+      ["code_changes", "File Change Preview", "Pseudo Diff"],
+      ["preview_effect", "Effect Summary", "Before / After Preview"],
+      ["verification", "Verification Summary", "Quality Gate Matrix"],
+      ["review", "Audit Summary", "Evidence Ledger"],
+      ["delivery", "Final Report Summary", "PR Readiness Panel"],
+    ];
 
-    expect(screen.getByRole("heading", { name: "Work Breakdown" })).toBeTruthy();
-    expect(screen.getByText("这次任务会改哪里？谁负责？怎么测？")).toBeTruthy();
-  });
-
-  test("renders all software delivery page skeleton titles", () => {
-    for (const page of softwareDeliveryPages) {
-      const { unmount } = render(<SoftwareDeliveryPageRenderer currentProductPageId={page.id} actions={{}} />);
-      expect(screen.getByRole("heading", { name: page.title })).toBeTruthy();
+    for (const [pageId, primaryText, secondaryText] of cases) {
+      const { unmount } = render(<SoftwareDeliveryPageRenderer currentProductPageId={pageId} actions={{}} />);
+      expect(screen.getByText("Agent Workspace Preview")).toBeTruthy();
+      expect(screen.getAllByText(primaryText).length).toBeGreaterThan(0);
+      expect(screen.getAllByText(secondaryText).length).toBeGreaterThan(0);
       unmount();
     }
   });
+
+  test("renders artifact status in the software delivery workbench", () => {
+    render(
+      <SoftwareDeliveryPageRenderer
+        currentProductPageId="verification"
+        actions={{}}
+        artifacts={[{ type: "test_result", title: "Test Result", status: "passed" }]}
+        task={{ id: "task-verification-1", taskMode: "software_delivery", requirement: "Add reading time." }}
+      />,
+    );
+
+    expect(screen.getByText("Artifact Status")).toBeTruthy();
+    expect(screen.getAllByText("Verification").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("passed").length).toBeGreaterThan(0);
+  });
+
+  test("supports interactive command and agent controls in the workbench", () => {
+    render(<SoftwareDeliveryPageRenderer currentProductPageId="pm_request" actions={{}} />);
+
+    expect(screen.getByText("Command Bar")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Continue to next step" }));
+    expect(screen.getByText("Selected action: Continue to next step")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Open artifact drawer" }));
+    expect(screen.getByText("Artifact drawer opened")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Copy summary" }));
+    expect(screen.getByText("Summary copied")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Review safety gates" }));
+    expect(screen.getByText("Safety gates reviewed")).toBeTruthy();
+
+    expect(screen.getByText("Agent Control Panel")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "View agent output" }));
+    expect(screen.getByText(/Agent output:/)).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Mark ready for next step" }));
+    expect(screen.getByText("Agent marked ready for next step")).toBeTruthy();
+  });
+
+  test("renders PM Request stage controls", () => {
+    render(<SoftwareDeliveryPageRenderer currentProductPageId="pm_request" actions={{}} />);
+
+    expect(screen.getByLabelText("Workbench requirement input")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Use article reading time example" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Use tag badge example" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Submit requirement" }));
+    expect(screen.getByText("Selected action: Submit requirement")).toBeTruthy();
+  });
+
+  test("renders stage-specific interactive controls", () => {
+    const cases = [
+      ["code_changes", "frontend/src/routes/Article/Article.jsx", "Open diff preview", "Diff preview opened"],
+      ["verification", "npm test -- frontend/src/App.test.jsx", "View stdout", "stdout opened"],
+      ["verification", "npm test -- frontend/src/App.test.jsx", "View stderr", "stderr opened"],
+      ["review", "Audit checklist", "Acknowledge risk", "Risk acknowledged"],
+      ["delivery", "Copy report", "Copy report", "Report copied"],
+    ];
+
+    for (const [pageId, visibleText, buttonName, feedback] of cases) {
+      const { unmount } = render(<SoftwareDeliveryPageRenderer currentProductPageId={pageId} actions={{}} />);
+      expect(screen.getAllByText(visibleText).length).toBeGreaterThan(0);
+      fireEvent.click(screen.getAllByRole("button", { name: buttonName })[0]);
+      expect(screen.getByText(`Selected action: ${feedback}`)).toBeTruthy();
+      unmount();
+    }
+  });
+
+  test("evidence drawer selects artifacts and bottom bar stays safe", () => {
+    render(<SoftwareDeliveryPageRenderer currentProductPageId="pm_request" actions={{}} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Code Changes" }));
+    expect(screen.getByText("Selected artifact: Code Changes")).toBeTruthy();
+    expect(screen.getByText(/Artifact id: code_diff/)).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Copy artifact id" }));
+    expect(screen.getByText("Selected action: Artifact id copied: code_diff")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Open related page" }));
+    expect(screen.getByText("Selected action: Related page opened: Code Changes")).toBeTruthy();
+
+    expect(screen.getByText("Bottom Action Bar")).toBeTruthy();
+    for (const buttonName of ["Back", "Continue", "Save draft", "Preview only"]) {
+      expect(screen.getByRole("button", { name: buttonName })).toBeTruthy();
+    }
+    expect(screen.getByText("Dangerous remote actions disabled")).toBeTruthy();
+    expect(screen.getByText("No automatic push")).toBeTruthy();
+    expect(screen.getByText("No automatic gh pr create")).toBeTruthy();
+    expect(screen.getByText("explicit user approval required")).toBeTruthy();
+  });
+
 });
 
 describe("software delivery product flow config", () => {
@@ -415,17 +512,23 @@ describe("App replay controls", () => {
     const { container } = render(<App />);
 
     expect(await screen.findByRole("button", { name: "Software delivery" })).toBeTruthy();
+    fireEvent.click(screen.getAllByRole("button", { name: /PM Request/ })[0]);
+    expect(screen.getByText("Requirement Input")).toBeTruthy();
+    expect(screen.getByText("Intent Understanding")).toBeTruthy();
     expect(screen.getByRole("button", { name: "Labs / Debug Workflow" })).toBeTruthy();
     expect(container.querySelectorAll(".timeline-step")).toHaveLength(10);
     for (const stepName of productStepNames) {
       expect(screen.getAllByText(stepName).length).toBeGreaterThan(0);
     }
-    expect(screen.getAllByText("Produced artifact")).toHaveLength(12);
-    expect(screen.getAllByText("View location")).toHaveLength(12);
-    expect(screen.getAllByText("Next action")).toHaveLength(10);
-    expect(screen.getAllByText("PM 的原始交付意图是什么？").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Current page + Evidence Drawer → Requirement").length).toBeGreaterThan(0);
-    expect(screen.getByText("Software Delivery Page")).toBeTruthy();
+    expect(screen.queryByText("Produced artifact")).toBeNull();
+    expect(screen.queryByText("View location")).toBeNull();
+    expect(screen.queryByText("Next action")).toBeNull();
+    expect(screen.queryByText(/Current page \+ Evidence Drawer/)).toBeNull();
+    expect(screen.getByText("Agent Workspace Preview")).toBeTruthy();
+    expect(screen.getAllByText("Task intake and intent capture").length).toBeGreaterThan(0);
+    expect(screen.getByText("No automatic push")).toBeTruthy();
+    expect(screen.getByText("No automatic gh pr create")).toBeTruthy();
+    expect(screen.getByText("explicit user approval required")).toBeTruthy();
     for (const tabName of artifactTabNames) {
       expect(screen.getByRole("button", { name: tabName })).toBeTruthy();
     }
@@ -435,17 +538,43 @@ describe("App replay controls", () => {
     render(<App />);
 
     expect(await screen.findByRole("button", { name: "Software delivery" })).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: /Work Breakdown/ }));
-    expect(screen.getAllByText("这次任务会改哪里？谁负责？怎么测？").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Approve Breakdown").length).toBeGreaterThan(0);
+    fireEvent.click(screen.getAllByRole("button", { name: /PM Request/ })[0]);
+    expect(screen.getByText("Requirement Input")).toBeTruthy();
+    expect(screen.getByText("Intent Understanding")).toBeTruthy();
 
-    fireEvent.click(screen.getByRole("button", { name: /Code Changes/ }));
-    expect(screen.getAllByText("代码会产生哪些文件级变化？").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Open Diff Review").length).toBeGreaterThan(0);
+    fireEvent.click(screen.getAllByRole("button", { name: /Work Breakdown/ })[0]);
+    expect(screen.getAllByText("Task Breakdown Board").length).toBeGreaterThan(0);
 
-    fireEvent.click(screen.getByRole("button", { name: /Verification/ }));
-    expect(screen.getAllByText("测试证据是否足够支撑交付？").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Approve Verification").length).toBeGreaterThan(0);
+    fireEvent.click(screen.getAllByRole("button", { name: /Implementation Plan/ })[0]);
+    expect(screen.getAllByText("Plan Overview").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Implementation Board").length).toBeGreaterThan(0);
+
+    fireEvent.click(screen.getAllByRole("button", { name: /Requirement Brief/ })[0]);
+    expect(screen.getAllByText("Brief Summary").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Structured Requirement Brief").length).toBeGreaterThan(0);
+
+    fireEvent.click(screen.getAllByRole("button", { name: /Code Changes/ })[0]);
+    expect(screen.getAllByText("File Change Preview").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Pseudo Diff").length).toBeGreaterThan(0);
+
+    fireEvent.click(screen.getAllByRole("button", { name: /Preview \/ Effect/ })[0]);
+    expect(screen.getAllByText("Effect Summary").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Before / After Preview").length).toBeGreaterThan(0);
+
+    fireEvent.click(screen.getAllByRole("button", { name: /Verification/ })[0]);
+    expect(screen.getAllByText("Verification Summary").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Quality Gate Matrix").length).toBeGreaterThan(0);
+
+    fireEvent.click(screen.getAllByRole("button", { name: /Audit Console/ })[0]);
+    expect(screen.getAllByText("Audit Summary").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Evidence Ledger").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Remote Safety Audit").length).toBeGreaterThan(0);
+
+    fireEvent.click(screen.getAllByRole("button", { name: /PR \/ Final Report/ })[0]);
+    expect(screen.getAllByText("Final Report Summary").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("PR Readiness Panel").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Final Report Workspace").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Release Notes Draft").length).toBeGreaterThan(0);
   });
 
   test("submits and renders an algorithm competition skeleton run", async () => {
@@ -485,6 +614,25 @@ describe("App replay controls", () => {
     expect(screen.getByText("No PR")).toBeTruthy();
     expect(screen.getByText("Algorithm competition skeleton mode does not run repository writes, tests, commits, push, or PR actions.")).toBeTruthy();
     expect(screen.queryByText("Software Delivery Page")).toBeNull();
+    expect(screen.queryByText("Requirement DSL Preview")).toBeNull();
+    expect(screen.queryByText("Work Packages")).toBeNull();
+    expect(screen.queryByText("Dependency Map")).toBeNull();
+    expect(screen.queryByText("Plan Overview")).toBeNull();
+    expect(screen.queryByText("Module Touch Plan")).toBeNull();
+    expect(screen.queryByText("Change Summary")).toBeNull();
+    expect(screen.queryByText("Changed Files")).toBeNull();
+    expect(screen.queryByText("Effect Summary")).toBeNull();
+    expect(screen.queryByText("Preview Surface")).toBeNull();
+    expect(screen.queryByText("Verification Summary")).toBeNull();
+    expect(screen.queryByText("Test Command Panel")).toBeNull();
+    expect(screen.queryByText("Audit Summary")).toBeNull();
+    expect(screen.queryByText("Evidence Ledger")).toBeNull();
+    expect(screen.queryByText("Remote Safety Audit")).toBeNull();
+    expect(screen.queryByText("Agent Workspace Preview")).toBeNull();
+    expect(screen.queryByText("Final Report Summary")).toBeNull();
+    expect(screen.queryByText("PR Readiness Panel")).toBeNull();
+    expect(screen.queryByText("Remote Action Safety")).toBeNull();
+    expect(screen.queryByText("Release Notes Draft")).toBeNull();
     expect(screen.queryByRole("button", { name: "创建本地提交" })).toBeNull();
   });
 
@@ -646,10 +794,10 @@ describe("App replay controls", () => {
     fireEvent.click(screen.getByRole("button", { name: "启动 AI 编排链路" }));
 
     expect(await screen.findByText("task-1")).toBeTruthy();
-    expect(screen.getByText("Context Evidence")).toBeTruthy();
+    expect(screen.getAllByText("Context Evidence").length).toBeGreaterThan(0);
     expect(screen.getAllByText("frontend/src/components/PopularTags/TagButton.jsx").length).toBeGreaterThan(0);
-    expect(screen.getByText("push: false")).toBeTruthy();
-    expect(screen.getByText("pr: false")).toBeTruthy();
+    expect(screen.getAllByText("push: false").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("pr: false").length).toBeGreaterThan(0);
   });
 
   test("replays the current task as an apply run", async () => {

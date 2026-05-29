@@ -24,31 +24,19 @@ export function RunTimeline({ currentProductPageId, delivery, onProductPageChang
         </div>
         <span className="safety-pill">Dangerous remote actions isolated</span>
       </div>
-      {!isAlgorithm && currentPage && <ProductPageSummary page={currentPage} />}
       <div className="timeline-rail product-flow-rail">
         {steps.map((step) => {
           const status = step.status || productStepStatus(step.key, task, delivery, isAlgorithm);
           const isCurrent = isAlgorithm ? step.key === getCurrentProductStepKey(task, delivery, isAlgorithm) : step.key === currentPage.id;
           const failure = getProductStepFailure(step.key, task, delivery, isAlgorithm);
           const className = `timeline-step timeline-${timelineTone(status)}${isCurrent ? " timeline-current" : ""}`;
+          const page = isAlgorithm ? null : getPageById(step.key);
+          const intent = page?.intent || step.nextAction || "Review this stage";
           const content = (
             <>
               <span>{step.label}</span>
               <strong>{isCurrent ? `current / ${status}` : status}</strong>
-              <dl className="product-step-meta">
-                <dt>Produced artifact</dt>
-                <dd>{step.producedArtifact}</dd>
-                <dt>View location</dt>
-                <dd>{step.viewLocation}</dd>
-                <dt>Next action</dt>
-                <dd>{step.nextAction}</dd>
-                {failure && (
-                  <>
-                    <dt>Failure</dt>
-                    <dd>{failure}</dd>
-                  </>
-                )}
-              </dl>
+              <small>{failure || intent}</small>
             </>
           );
 
@@ -62,29 +50,5 @@ export function RunTimeline({ currentProductPageId, delivery, onProductPageChang
         })}
       </div>
     </section>
-  );
-}
-
-function ProductPageSummary({ page }) {
-  return (
-    <article className="artifact-card">
-      <div className="artifact-card-title">
-        <h3>Current page: {page.title}</h3>
-        <span>{page.safetyLevel}</span>
-      </div>
-      <p>{page.primaryQuestion}</p>
-      <dl className="compact-list">
-        <dt>Produced artifact</dt>
-        <dd>{page.producedArtifact}</dd>
-        <dt>View location</dt>
-        <dd>{page.viewLocation}</dd>
-        <dt>Primary action</dt>
-        <dd>{page.primaryAction}</dd>
-        <dt>Previous page</dt>
-        <dd>{page.previousPage || "none"}</dd>
-        <dt>Next page</dt>
-        <dd>{page.nextPage || "none"}</dd>
-      </dl>
-    </article>
   );
 }
