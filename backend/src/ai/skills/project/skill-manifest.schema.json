@@ -12,6 +12,7 @@
     "riskLevel",
     "inputs",
     "outputs",
+    "classification",
     "successCriteria"
   ],
   "properties": {
@@ -68,6 +69,80 @@
       "items": {
         "type": "string"
       }
+    },
+    "classification": {
+      "type": "object",
+      "required": [
+        "standard",
+        "capabilityClass",
+        "activationMode",
+        "workflowPhase",
+        "controlRole",
+        "sourceInfluences"
+      ],
+      "properties": {
+        "standard": {
+          "type": "string",
+          "enum": [
+            "agent-skills-compatible"
+          ]
+        },
+        "capabilityClass": {
+          "type": "string",
+          "enum": [
+            "repository-context",
+            "domain-knowledge",
+            "surface-map",
+            "test-intelligence",
+            "task-operation",
+            "quality-gate",
+            "change-memory"
+          ]
+        },
+        "activationMode": {
+          "type": "string",
+          "enum": [
+            "dependency-loaded",
+            "keyword-triggered",
+            "post-task-hook",
+            "bridge-routed"
+          ]
+        },
+        "workflowPhase": {
+          "type": "string",
+          "enum": [
+            "orient",
+            "plan",
+            "modify",
+            "verify",
+            "learn"
+          ]
+        },
+        "controlRole": {
+          "type": "string",
+          "enum": [
+            "context",
+            "executor",
+            "verifier",
+            "memory"
+          ]
+        },
+        "sourceInfluences": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "agent-skills",
+              "github-copilot-skills",
+              "openhands-skills",
+              "claude-code-skills"
+            ]
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": false
     },
     "contextHints": {
       "type": "object",

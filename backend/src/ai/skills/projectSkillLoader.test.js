@@ -1,5 +1,11 @@
 const path = require("node:path");
-const { loadProjectSkills } = require("./projectSkillLoader");
+const {
+  ACTIVATION_MODES,
+  CAPABILITY_CLASSES,
+  CONTROL_ROLES,
+  WORKFLOW_PHASES,
+  loadProjectSkills,
+} = require("./projectSkillLoader");
 
 describe("project Skill loader", () => {
   test("loads registry-backed engineering Skills with manifest metadata", () => {
@@ -19,11 +25,48 @@ describe("project Skill loader", () => {
     for (const skill of skills) {
       expect(skill.manifestPath).toMatch(/manifest\.json$/);
       expect(skill.skillMarkdownPath).toMatch(/SKILL\.md$/);
+      expect(skill.agentSkillFrontmatter.name).toBe(skill.id);
+      expect(skill.agentSkillFrontmatter.description).toContain(skill.description);
       expect(skill.triggers.length).toBeGreaterThan(0);
       expect(skill.keywords).toEqual(skill.triggers);
       expect(skill.referencePaths).toEqual(expect.arrayContaining([expect.stringContaining("references/README.md")]));
       expect(skill.examplePaths).toEqual(expect.arrayContaining([expect.stringContaining("examples/sample-input.json")]));
     }
+  });
+
+  test("loads Agent Skills compatible taxonomy classification", () => {
+    const skills = loadProjectSkills(path.join(__dirname, "project"));
+
+    for (const skill of skills) {
+      expect(skill.classification).toMatchObject({
+        standard: "agent-skills-compatible",
+      });
+      expect(CAPABILITY_CLASSES.has(skill.classification.capabilityClass)).toBe(true);
+      expect(ACTIVATION_MODES.has(skill.classification.activationMode)).toBe(true);
+      expect(WORKFLOW_PHASES.has(skill.classification.workflowPhase)).toBe(true);
+      expect(CONTROL_ROLES.has(skill.classification.controlRole)).toBe(true);
+      expect(skill.classification.sourceInfluences).toEqual(
+        expect.arrayContaining([
+          "agent-skills",
+          "github-copilot-skills",
+          "openhands-skills",
+          "claude-code-skills",
+        ]),
+      );
+    }
+
+    expect(skills.find((skill) => skill.id === "ui-computed-display").classification).toMatchObject({
+      capabilityClass: "task-operation",
+      activationMode: "keyword-triggered",
+      workflowPhase: "modify",
+      controlRole: "executor",
+    });
+    expect(skills.find((skill) => skill.id === "conduit-change-memory").classification).toMatchObject({
+      capabilityClass: "change-memory",
+      activationMode: "post-task-hook",
+      workflowPhase: "learn",
+      controlRole: "memory",
+    });
   });
 
   test("loads change memory output contract examples", () => {

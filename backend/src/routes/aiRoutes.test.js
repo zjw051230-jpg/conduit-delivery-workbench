@@ -41,8 +41,68 @@ async function createApiHarness() {
   return { request, taskStore, conduitRepoPath };
 }
 
+function writeFixture(root, relativePath, content) {
+  const filePath = path.join(root, relativePath);
+  fs.mkdirSync(path.dirname(filePath), { recursive: true });
+  fs.writeFileSync(filePath, content);
+}
+
 afterEach(async () => {
   await Promise.all(servers.splice(0).map((server) => new Promise((resolve) => server.close(resolve))));
+});
+
+describe("project Skill taxonomy API", () => {
+  test("exposes Agent Skills compatible taxonomy metadata in config and skills list", async () => {
+    const { request } = await createApiHarness();
+
+    const config = await request("GET", "/api/ai/config");
+    const skills = await request("GET", "/api/ai/skills");
+
+    expect(config.status).toBe(200);
+    expect(config.data).toMatchObject({
+      projectSkillCount: 9,
+      skillTaxonomyVersion: "v2-agent-matrix",
+      agentSkillsCompatibleCount: 9,
+    });
+    expect(skills.status).toBe(200);
+    expect(skills.data.projectSkills.find((skill) => skill.id === "ui-computed-display").classification).toMatchObject({
+      standard: "agent-skills-compatible",
+      capabilityClass: "task-operation",
+      activationMode: "keyword-triggered",
+      workflowPhase: "modify",
+      controlRole: "executor",
+    });
+  });
+
+  test("returns taxonomy-aware skillPlan from context search", async () => {
+    const { request, conduitRepoPath } = await createApiHarness();
+    writeFixture(
+      conduitRepoPath,
+      "frontend/src/routes/Article/Article.jsx",
+      "export default function Article() { return <article>{article.body}</article>; }\n",
+    );
+
+    const response = await request("POST", "/api/ai/context/search", {
+      query: "article reading time",
+      limit: 3,
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.data.projectMatchedSkill).toMatchObject({
+      id: "ui-computed-display",
+      classification: {
+        capabilityClass: "task-operation",
+        activationMode: "keyword-triggered",
+        workflowPhase: "modify",
+        controlRole: "executor",
+      },
+    });
+    expect(response.data.skillPlan).toMatchObject({
+      skillTaxonomyVersion: "v2-agent-matrix",
+    });
+    expect(response.data.skillPlan.capabilityClasses).toEqual(expect.arrayContaining(["task-operation", "quality-gate", "change-memory"]));
+    expect(response.data.skillPlan.workflowPhases).toEqual(expect.arrayContaining(["orient", "modify", "verify", "learn"]));
+  });
 });
 
 describe("algorithm competition workflow API", () => {

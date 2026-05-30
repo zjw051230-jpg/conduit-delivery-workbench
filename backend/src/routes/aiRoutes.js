@@ -39,6 +39,10 @@ function createAiRouter({ config, taskStore }) {
       skillCount: skills.length + projectSkills.length,
       legacySkillCount: skills.length,
       projectSkillCount: projectSkills.length,
+      skillTaxonomyVersion: "v2-agent-matrix",
+      agentSkillsCompatibleCount: projectSkills.filter(
+        (skill) => skill.classification?.standard === "agent-skills-compatible",
+      ).length,
       skillLayers: [...new Set(projectSkills.map((skill) => skill.type))],
       skills: skills.map(({ id, name, requirementType }) => ({ id, name, requirementType })),
     });

@@ -99,5 +99,18 @@
     "No command is invented without script or tool evidence.",
     "The plan distinguishes frontend-only, backend-only, fullstack-targeted, unknown, and none.",
     "No source files are modified."
-  ]
+  ],
+  "classification": {
+    "standard": "agent-skills-compatible",
+    "capabilityClass": "test-intelligence",
+    "activationMode": "dependency-loaded",
+    "workflowPhase": "verify",
+    "controlRole": "verifier",
+    "sourceInfluences": [
+      "agent-skills",
+      "github-copilot-skills",
+      "openhands-skills",
+      "claude-code-skills"
+    ]
+  }
 }

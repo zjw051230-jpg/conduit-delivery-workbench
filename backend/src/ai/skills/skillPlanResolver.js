@@ -1,6 +1,8 @@
 const { SkillRegistry } = require("./skillRegistry");
 const { findMappedProjectSkill } = require("./skillBridge");
 
+const WORKFLOW_PHASE_ORDER = ["orient", "plan", "modify", "verify", "learn"];
+
 function resolveSkillPlan({ requirement, legacySkill, projectSkills = [] }) {
   const projectRegistry = new SkillRegistry(projectSkills);
   const directProjectSkill = projectRegistry.match(requirement);
@@ -18,6 +20,7 @@ function resolveSkillPlan({ requirement, legacySkill, projectSkills = [] }) {
     ...requiredUnderstandingSkills,
     ...deliverySkills,
   ]);
+  const orderedProjectSkills = orderProjectSkills(participatingSkills);
 
   return {
     legacyWriterSkill: compactLegacySkill(legacySkill),
@@ -29,6 +32,12 @@ function resolveSkillPlan({ requirement, legacySkill, projectSkills = [] }) {
     skillLayer: primaryProjectSkill?.type || null,
     riskLevel: primaryProjectSkill?.riskLevel || null,
     testProfile: primaryProjectSkill?.testProfile || "unknown",
+    skillTaxonomyVersion: "v2-agent-matrix",
+    projectSkillExecutionOrder: orderedProjectSkills.map(compactProjectSkill),
+    capabilityClasses: uniqueClassificationValues(orderedProjectSkills, "capabilityClass"),
+    activationModes: uniqueClassificationValues(orderedProjectSkills, "activationMode"),
+    workflowPhases: uniqueClassificationValues(orderedProjectSkills, "workflowPhase"),
+    controlRoles: uniqueClassificationValues(orderedProjectSkills, "controlRole"),
     allowedChanges: uniqueFlatMap(participatingSkills, (skill) => skill.allowedChanges || []),
     forbiddenChanges: uniqueFlatMap(participatingSkills, (skill) => skill.forbiddenChanges || []),
     safeDefaults: uniqueFlatMap(participatingSkills, (skill) => skill.clarificationPolicy?.safeDefaults || []),
@@ -40,6 +49,32 @@ function resolveSkillPlan({ requirement, legacySkill, projectSkills = [] }) {
 
 function resolveSkillsById(skills, skillIds) {
   return [...new Set(skillIds)].map((skillId) => skills.find((skill) => skill.id === skillId)).filter(Boolean);
+}
+
+function orderProjectSkills(skills) {
+  return skills
+    .map((skill, index) => ({ skill, index }))
+    .sort((left, right) => {
+      const leftPhase = left.skill?.classification?.workflowPhase;
+      const rightPhase = right.skill?.classification?.workflowPhase;
+      return phaseIndex(leftPhase) - phaseIndex(rightPhase) || left.index - right.index;
+    })
+    .map(({ skill }) => skill);
+}
+
+function phaseIndex(phase) {
+  const index = WORKFLOW_PHASE_ORDER.indexOf(phase);
+  return index === -1 ? WORKFLOW_PHASE_ORDER.length : index;
+}
+
+function uniqueClassificationValues(skills, field) {
+  return [
+    ...new Set(
+      skills
+        .map((skill) => skill?.classification?.[field])
+        .filter(Boolean),
+    ),
+  ];
 }
 
 function mergeContextHints(skills) {
@@ -95,6 +130,7 @@ function compactProjectSkill(skill) {
     riskLevel: skill.riskLevel,
     testProfile: skill.testProfile,
     description: skill.description,
+    classification: skill.classification,
     manifestPath: skill.manifestPath,
     skillMarkdownPath: skill.skillMarkdownPath,
   };
@@ -103,4 +139,6 @@ function compactProjectSkill(skill) {
 module.exports = {
   resolveSkillPlan,
   compactProjectSkill,
+  orderProjectSkills,
+  WORKFLOW_PHASE_ORDER,
 };

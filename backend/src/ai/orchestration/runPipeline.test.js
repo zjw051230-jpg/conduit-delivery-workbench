@@ -47,6 +47,30 @@ describe("software delivery work breakdown", () => {
     expect(task.dsl.testProfile).toBe("frontend-only");
     expect(task.dsl.forbiddenChanges).toEqual(expect.arrayContaining(["Backend source files"]));
     expect(task.skillPlan.primaryProjectSkill.id).toBe("ui-computed-display");
+    expect(task.skillPlan.primaryProjectSkill.classification).toMatchObject({
+      capabilityClass: "task-operation",
+      activationMode: "keyword-triggered",
+      workflowPhase: "modify",
+      controlRole: "executor",
+    });
+    expect(task.skillPlan.capabilityClasses).toEqual(
+      expect.arrayContaining(["repository-context", "surface-map", "test-intelligence", "task-operation", "quality-gate", "change-memory"]),
+    );
+    expect(task.skillPlan.activationModes).toEqual(
+      expect.arrayContaining(["dependency-loaded", "keyword-triggered", "post-task-hook"]),
+    );
+    expect(task.skillPlan.workflowPhases).toEqual(expect.arrayContaining(["orient", "modify", "verify", "learn"]));
+    expect(task.skillPlan.controlRoles).toEqual(expect.arrayContaining(["context", "executor", "verifier", "memory"]));
+    expect(task.skillPlan.deliverySkills.find((skill) => skill.id === "test-repair-pr").classification).toMatchObject({
+      capabilityClass: "quality-gate",
+      activationMode: "post-task-hook",
+      workflowPhase: "verify",
+    });
+    expect(task.skillPlan.deliverySkills.find((skill) => skill.id === "conduit-change-memory").classification).toMatchObject({
+      capabilityClass: "change-memory",
+      activationMode: "post-task-hook",
+      workflowPhase: "learn",
+    });
     expect(task.stages.find((stage) => stage.name === "code-writer").status).toBe("preview");
     expect(task.stages.find((stage) => stage.name === "test-runner").status).toBe("skipped");
     expect(task.stages.find((stage) => stage.name === "change-memory").status).toBe("completed");

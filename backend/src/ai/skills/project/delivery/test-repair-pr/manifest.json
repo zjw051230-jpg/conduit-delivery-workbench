@@ -111,5 +111,18 @@
     "Repair suggestions are scoped and routed to the correct Skill when business behavior is involved.",
     "PR Draft includes summary, changed files, tests run, failures, and risk notes.",
     "No business behavior is invented."
-  ]
+  ],
+  "classification": {
+    "standard": "agent-skills-compatible",
+    "capabilityClass": "quality-gate",
+    "activationMode": "post-task-hook",
+    "workflowPhase": "verify",
+    "controlRole": "verifier",
+    "sourceInfluences": [
+      "agent-skills",
+      "github-copilot-skills",
+      "openhands-skills",
+      "claude-code-skills"
+    ]
+  }
 }

@@ -105,5 +105,18 @@
     "No backend, database, or API contract file is modified.",
     "Reading time uses 500 Chinese characters per minute and minimum 1 minute unless overridden.",
     "Frontend validation plan is produced from discovered scripts."
-  ]
+  ],
+  "classification": {
+    "standard": "agent-skills-compatible",
+    "capabilityClass": "task-operation",
+    "activationMode": "keyword-triggered",
+    "workflowPhase": "modify",
+    "controlRole": "executor",
+    "sourceInfluences": [
+      "agent-skills",
+      "github-copilot-skills",
+      "openhands-skills",
+      "claude-code-skills"
+    ]
+  }
 }

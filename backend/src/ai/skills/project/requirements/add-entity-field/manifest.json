@@ -136,5 +136,18 @@
     "Model/schema, API create/update/read, frontend client, editor form, list/detail/profile surfaces, and tests are considered.",
     "Backward compatibility for existing data is documented.",
     "Fullstack-targeted validation plan is produced from discovered scripts."
-  ]
+  ],
+  "classification": {
+    "standard": "agent-skills-compatible",
+    "capabilityClass": "task-operation",
+    "activationMode": "keyword-triggered",
+    "workflowPhase": "modify",
+    "controlRole": "executor",
+    "sourceInfluences": [
+      "agent-skills",
+      "github-copilot-skills",
+      "openhands-skills",
+      "claude-code-skills"
+    ]
+  }
 }

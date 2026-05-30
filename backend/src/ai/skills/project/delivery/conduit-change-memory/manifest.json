@@ -118,5 +118,18 @@
     "skillImpactAnalysis suggests changes to other Skills without applying them automatically.",
     "writePlan restricts writes to this memory Skill's files unless separately approved.",
     "No unverified Conduit path is stored as a permanent fact."
-  ]
+  ],
+  "classification": {
+    "standard": "agent-skills-compatible",
+    "capabilityClass": "change-memory",
+    "activationMode": "post-task-hook",
+    "workflowPhase": "learn",
+    "controlRole": "memory",
+    "sourceInfluences": [
+      "agent-skills",
+      "github-copilot-skills",
+      "openhands-skills",
+      "claude-code-skills"
+    ]
+  }
 }

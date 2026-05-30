@@ -98,5 +98,18 @@
     "Every path is marked verified or candidate.",
     "Output includes search hints for missing surfaces.",
     "No source files are modified."
-  ]
+  ],
+  "classification": {
+    "standard": "agent-skills-compatible",
+    "capabilityClass": "surface-map",
+    "activationMode": "dependency-loaded",
+    "workflowPhase": "orient",
+    "controlRole": "context",
+    "sourceInfluences": [
+      "agent-skills",
+      "github-copilot-skills",
+      "openhands-skills",
+      "claude-code-skills"
+    ]
+  }
 }

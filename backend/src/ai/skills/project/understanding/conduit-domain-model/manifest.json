@@ -88,5 +88,18 @@
     "Favorite is not described as Profile like.",
     "Follow is not described as Profile like.",
     "Comment like, if requested, is treated as relationship or idempotent interaction until verified."
-  ]
+  ],
+  "classification": {
+    "standard": "agent-skills-compatible",
+    "capabilityClass": "domain-knowledge",
+    "activationMode": "dependency-loaded",
+    "workflowPhase": "orient",
+    "controlRole": "context",
+    "sourceInfluences": [
+      "agent-skills",
+      "github-copilot-skills",
+      "openhands-skills",
+      "claude-code-skills"
+    ]
+  }
 }

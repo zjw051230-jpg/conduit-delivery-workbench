@@ -91,5 +91,18 @@
     "All paths are marked as verified or candidate.",
     "Output uses TARGET_REPO_PATH and contains no local absolute path.",
     "No source files are modified."
-  ]
+  ],
+  "classification": {
+    "standard": "agent-skills-compatible",
+    "capabilityClass": "repository-context",
+    "activationMode": "dependency-loaded",
+    "workflowPhase": "orient",
+    "controlRole": "context",
+    "sourceInfluences": [
+      "agent-skills",
+      "github-copilot-skills",
+      "openhands-skills",
+      "claude-code-skills"
+    ]
+  }
 }
