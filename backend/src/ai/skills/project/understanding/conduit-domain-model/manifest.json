@@ -1,0 +1,92 @@
+{
+  "id": "conduit-domain-model",
+  "name": "Conduit Domain Model",
+  "type": "understanding",
+  "version": "1.0.0",
+  "description": "Model Conduit User, Profile, Article, Comment, Tag, Favorite, and Follow relationships before business logic changes.",
+  "triggers": [
+    "domain model",
+    "User Profile Article Comment Tag Favorite Follow",
+    "favorite relationship",
+    "follow relationship",
+    "comment like",
+    "Conduit business relation"
+  ],
+  "riskLevel": "system",
+  "requiresUnderstandingSkills": [
+    "conduit-repo-map"
+  ],
+  "inputs": [
+    "repoUnderstanding",
+    "taskSpec",
+    "targetRepoPath"
+  ],
+  "outputs": [
+    "domainUnderstanding"
+  ],
+  "contextHints": {
+    "candidatePaths": [
+      "src",
+      "server",
+      "backend",
+      "api",
+      "models",
+      "entities",
+      "schemas",
+      "controllers",
+      "routes",
+      "services"
+    ],
+    "searchHints": [
+      "rg -n \"User|Profile|Article|Comment|Tag|Favorite|Follow\" TARGET_REPO_PATH",
+      "rg -n \"favorite|favoritesCount|favorited|follow|following|comment\" TARGET_REPO_PATH"
+    ],
+    "excludePaths": [
+      ".git",
+      ".env",
+      "node_modules",
+      "dist",
+      "build",
+      "coverage"
+    ],
+    "verificationSteps": [
+      "Verify actual model, serializer, API, and frontend DTO names before reporting them.",
+      "Distinguish relationship tables or edges from scalar display fields.",
+      "Record differences between backend model names and frontend data shapes."
+    ]
+  },
+  "clarificationPolicy": {
+    "mode": "non-blocking",
+    "blockingQuestions": [],
+    "safeDefaults": [
+      "Treat Favorite and Follow as relationships, not fields on Profile.",
+      "Treat unknown comment-like behavior as a relationship or interaction until verified."
+    ],
+    "confirmationDefaults": []
+  },
+  "agentDefaults": [
+    {
+      "key": "relationshipFirst",
+      "value": true
+    }
+  ],
+  "allowedChanges": [],
+  "forbiddenChanges": [
+    "Any Conduit source code modification",
+    "Any generated patch",
+    ".env",
+    "lockfiles",
+    "node_modules",
+    "dist",
+    "build",
+    "coverage",
+    ".git"
+  ],
+  "testProfile": "none",
+  "successCriteria": [
+    "Domain understanding object covers User, Profile, Article, Comment, Tag, Favorite, and Follow.",
+    "Favorite is not described as Profile like.",
+    "Follow is not described as Profile like.",
+    "Comment like, if requested, is treated as relationship or idempotent interaction until verified."
+  ]
+}

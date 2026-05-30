@@ -1,0 +1,109 @@
+{
+  "id": "ui-computed-display",
+  "name": "UI Computed Display",
+  "type": "requirement-execution",
+  "version": "1.0.0",
+  "description": "Computed frontend display changes for article word count, reading time, mock read counts, Popular Tags top-five labels, and existing-field timestamps.",
+  "triggers": [
+    "computed display",
+    "word count",
+    "reading time",
+    "estimated reading",
+    "fake read count",
+    "Popular Tags top 5",
+    "last edited display",
+    "frontend-only calculated field"
+  ],
+  "riskLevel": "L1",
+  "requiresUnderstandingSkills": [
+    "conduit-repo-map",
+    "conduit-frontend-map",
+    "conduit-test-command"
+  ],
+  "inputs": [
+    "taskSpec",
+    "repoUnderstanding",
+    "frontendUnderstanding",
+    "testPlan"
+  ],
+  "outputs": [
+    "contextPackageRequest",
+    "patchPlan",
+    "testPlan",
+    "completionReport"
+  ],
+  "contextHints": {
+    "candidatePaths": [
+      "src",
+      "client/src",
+      "frontend/src",
+      "apps/*/src"
+    ],
+    "searchHints": [
+      "rg -n \"ArticlePreview|ArticleList|ArticlePage|Popular Tags|popular tags|tagList|body|updatedAt|updated\" TARGET_REPO_PATH",
+      "rg -n \"favoritesCount|favorited|tagList|createdAt|updatedAt\" TARGET_REPO_PATH"
+    ],
+    "excludePaths": [
+      ".git",
+      ".env",
+      "node_modules",
+      "dist",
+      "build",
+      "coverage"
+    ],
+    "verificationSteps": [
+      "Confirm the requested display can be computed from existing frontend data.",
+      "Confirm no backend model, database, or API contract change is required.",
+      "Verify affected route and component paths before patching."
+    ]
+  },
+  "clarificationPolicy": {
+    "mode": "safe-defaults",
+    "blockingQuestions": [
+      "Ask if the display requires data that is not already available in frontend state or API responses."
+    ],
+    "safeDefaults": [
+      "Use 500 Chinese characters per minute for reading time when language or rate is unspecified.",
+      "Display minimum reading time as 1 minute.",
+      "For Popular Tags top-five labels, label only the first five items in the existing tag order."
+    ],
+    "confirmationDefaults": [
+      "Treat the change as frontend-only unless requested data is absent."
+    ]
+  },
+  "agentDefaults": [
+    {
+      "key": "readingSpeedChineseCharsPerMinute",
+      "value": 500
+    },
+    {
+      "key": "minimumReadingMinutes",
+      "value": 1
+    }
+  ],
+  "allowedChanges": [
+    "Verified frontend source files under TARGET_REPO_PATH",
+    "Verified frontend tests under TARGET_REPO_PATH",
+    "Small frontend helper functions for pure display calculations"
+  ],
+  "forbiddenChanges": [
+    "Backend source files",
+    "Database schema or migrations",
+    "API request or response contracts",
+    "Authentication or authorization logic",
+    ".env",
+    "lockfiles",
+    "node_modules",
+    "dist",
+    "build",
+    "coverage",
+    ".git"
+  ],
+  "testProfile": "frontend-only",
+  "successCriteria": [
+    "The display is computed from existing frontend data.",
+    "No backend, database, or API contract file is modified.",
+    "Reading time uses 500 Chinese characters per minute and minimum 1 minute unless overridden.",
+    "Frontend validation plan is produced from discovered scripts."
+  ]
+}

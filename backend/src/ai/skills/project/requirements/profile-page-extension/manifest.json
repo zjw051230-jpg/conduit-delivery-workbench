@@ -1,0 +1,108 @@
+{
+  "id": "profile-page-extension",
+  "name": "Profile Page Extension",
+  "type": "requirement-execution",
+  "version": "1.0.0",
+  "description": "Profile page frontend extensions such as About Me tabs, user.bio display, and static profile information sections using existing data.",
+  "triggers": [
+    "Profile About Me",
+    "About Me Tab",
+    "user.bio",
+    "profile page extension",
+    "profile static section",
+    "profile tab",
+    "ProfilePage display"
+  ],
+  "riskLevel": "L1",
+  "requiresUnderstandingSkills": [
+    "conduit-repo-map",
+    "conduit-domain-model",
+    "conduit-frontend-map",
+    "conduit-test-command"
+  ],
+  "inputs": [
+    "taskSpec",
+    "repoUnderstanding",
+    "domainUnderstanding",
+    "frontendUnderstanding",
+    "testPlan"
+  ],
+  "outputs": [
+    "clarificationResult",
+    "contextPackageRequest",
+    "patchPlan",
+    "testPlan",
+    "completionReport"
+  ],
+  "contextHints": {
+    "candidatePaths": [
+      "src",
+      "client/src",
+      "frontend/src",
+      "apps/*/src"
+    ],
+    "searchHints": [
+      "rg -n \"ProfilePage|profile page|About|bio|following|follow\" TARGET_REPO_PATH",
+      "rg -n \"My Articles|Favorited Articles|favorites|articles\" TARGET_REPO_PATH"
+    ],
+    "excludePaths": [
+      ".git",
+      ".env",
+      "node_modules",
+      "dist",
+      "build",
+      "coverage"
+    ],
+    "verificationSteps": [
+      "Confirm whether the request wants a new tab or a new static section.",
+      "Confirm whether the content comes from an existing field or requires a new field.",
+      "Verify Profile route, Profile component, and existing tab structure before patching."
+    ]
+  },
+  "clarificationPolicy": {
+    "mode": "blocking-for-data-or-navigation-ambiguity",
+    "blockingQuestions": [
+      "Should the profile extension be a new tab or a static section?",
+      "Does the displayed content come from an existing field such as user.bio, or does it require a new field?"
+    ],
+    "safeDefaults": [
+      "If user.bio is already present in frontend profile data, render it as read-only text.",
+      "If tab placement is unspecified and an existing tab structure exists, add an About Me tab next to existing profile tabs.",
+      "If no tab structure exists, add a static section only after confirmation."
+    ],
+    "confirmationDefaults": [
+      "Route new fields to add-entity-field instead of modifying backend in this Skill."
+    ]
+  },
+  "agentDefaults": [
+    {
+      "key": "profileContentSource",
+      "value": "existing frontend data only"
+    }
+  ],
+  "allowedChanges": [
+    "Verified ProfilePage frontend files under TARGET_REPO_PATH",
+    "Verified profile-related frontend components under TARGET_REPO_PATH",
+    "Verified frontend tests under TARGET_REPO_PATH"
+  ],
+  "forbiddenChanges": [
+    "Follow or unfollow business logic",
+    "Favorite or like business logic",
+    "Backend model, route, serializer, or database changes",
+    "API contract changes",
+    ".env",
+    "lockfiles",
+    "node_modules",
+    "dist",
+    "build",
+    "coverage",
+    ".git"
+  ],
+  "testProfile": "frontend-only",
+  "successCriteria": [
+    "The profile UI extension uses existing frontend data or routes to add-entity-field.",
+    "The change does not modify Follow, Favorite, like, backend, database, or API behavior.",
+    "The affected Profile page surface is verified before patching.",
+    "Frontend validation plan is produced from discovered scripts."
+  ]
+}

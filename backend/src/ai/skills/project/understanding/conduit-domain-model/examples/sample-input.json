@@ -1,0 +1,15 @@
+{
+  "targetRepoPath": "TARGET_REPO_PATH",
+  "repoUnderstanding": {
+    "layout": "unknown",
+    "backend": {
+      "verifiedPaths": []
+    },
+    "frontend": {
+      "verifiedPaths": []
+    }
+  },
+  "taskSpec": {
+    "summary": "Add coverImage to Article and show it on article cards."
+  }
+}

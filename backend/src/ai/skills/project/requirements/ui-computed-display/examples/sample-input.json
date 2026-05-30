@@ -1,0 +1,17 @@
+{
+  "targetRepoPath": "TARGET_REPO_PATH",
+  "taskSpec": {
+    "summary": "Show estimated reading time on article cards.",
+    "requestedBehavior": "Use the article body and default Chinese reading speed.",
+    "riskLevel": "L1"
+  },
+  "frontendUnderstanding": {
+    "surfaces": {
+      "home": {
+        "articleList": {
+          "verifiedPaths": []
+        }
+      }
+    }
+  }
+}

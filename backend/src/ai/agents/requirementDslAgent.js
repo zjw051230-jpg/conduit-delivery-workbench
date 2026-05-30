@@ -9,20 +9,38 @@ const PIPELINE = [
   "delivery-reporter",
 ];
 
-function createRequirementDsl(requirement, { matchedSkill, missingQuestions = [], clarifications = {} }) {
+function createRequirementDsl(requirement, { matchedSkill, skillPlan, missingQuestions = [], clarifications = {} }) {
+  const primaryProjectSkill = skillPlan?.primaryProjectSkill || null;
+  const projectCandidatePaths = skillPlan?.primaryProjectContextHints?.candidatePaths || [];
+
   return {
     version: "delivery-dsl/v0.1",
     rawRequirement: requirement,
     targetSkillId: matchedSkill?.id || null,
-    skillName: matchedSkill?.name || null,
-    requirementType: matchedSkill?.requirementType || "unknown",
+    projectSkillId: primaryProjectSkill?.id || null,
+    skillName: matchedSkill?.name || primaryProjectSkill?.name || null,
+    legacySkillName: matchedSkill?.name || null,
+    projectSkillName: primaryProjectSkill?.name || null,
+    requirementType: matchedSkill?.requirementType || primaryProjectSkill?.type || "unknown",
+    skillLayer: skillPlan?.skillLayer || null,
+    riskLevel: skillPlan?.riskLevel || null,
+    testProfile: skillPlan?.testProfile || "unknown",
     status: missingQuestions.length > 0 ? "needs_clarification" : "ready_for_planning",
     clarifications,
     unresolvedQuestions: missingQuestions,
     targetModules: matchedSkill?.targetModules || [],
-    contextHints: matchedSkill?.contextHints || [],
-    acceptanceCriteria: matchedSkill?.acceptanceCriteria || [],
+    contextHints: [...new Set([...(matchedSkill?.contextHints || []), ...projectCandidatePaths])],
+    legacyContextHints: matchedSkill?.contextHints || [],
+    projectContextHints: skillPlan?.projectContextHints || {},
+    acceptanceCriteria: matchedSkill?.acceptanceCriteria || skillPlan?.successCriteria || [],
+    projectSuccessCriteria: skillPlan?.successCriteria || [],
     testCommands: matchedSkill?.testCommands || [],
+    requiredUnderstandingSkillIds: skillPlan?.requiredUnderstandingSkills?.map((skill) => skill.id) || [],
+    deliverySkillIds: skillPlan?.deliverySkills?.map((skill) => skill.id) || [],
+    allowedChanges: skillPlan?.allowedChanges || [],
+    forbiddenChanges: skillPlan?.forbiddenChanges || [],
+    safeDefaults: skillPlan?.safeDefaults || [],
+    skillPlan,
     pipeline: PIPELINE,
   };
 }

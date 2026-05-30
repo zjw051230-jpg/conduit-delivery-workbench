@@ -19,11 +19,12 @@ function write(root, relativePath, content) {
 
 describe("software delivery work breakdown", () => {
   test("returns a work_breakdown artifact without changing the stage timeline", () => {
+    const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), "super-individual-project-"));
     const task = runPipeline({
       requirement: "文章详情页新增字数统计，展示本文共多少字和预计阅读时间",
       applyChanges: false,
       runTests: false,
-      config: { conduitRepoPath: createArticleRepoFixture() },
+      config: { conduitRepoPath: createArticleRepoFixture(), projectRoot },
     });
 
     expect(task.taskMode).toBe("software_delivery");
@@ -36,11 +37,19 @@ describe("software delivery work breakdown", () => {
       "code-writer",
       "test-runner",
       "delivery-reporter",
+      "change-memory",
     ]);
     expect(task.applyChanges).toBe(false);
     expect(task.runTests).toBe(false);
+    expect(task.dsl.targetSkillId).toBe("article-word-stats");
+    expect(task.dsl.projectSkillId).toBe("ui-computed-display");
+    expect(task.dsl.riskLevel).toBe("L1");
+    expect(task.dsl.testProfile).toBe("frontend-only");
+    expect(task.dsl.forbiddenChanges).toEqual(expect.arrayContaining(["Backend source files"]));
+    expect(task.skillPlan.primaryProjectSkill.id).toBe("ui-computed-display");
     expect(task.stages.find((stage) => stage.name === "code-writer").status).toBe("preview");
     expect(task.stages.find((stage) => stage.name === "test-runner").status).toBe("skipped");
+    expect(task.stages.find((stage) => stage.name === "change-memory").status).toBe("completed");
 
     const artifact = task.artifacts.find((item) => item.type === "work_breakdown");
     expect(artifact).toMatchObject({
@@ -56,6 +65,8 @@ describe("software delivery work breakdown", () => {
       expect.objectContaining({ command: "npm test -- frontend/src/helpers/readingStats.test.js" }),
     ]);
     expect(artifact.content.skillAssignment.skillId).toBe("article-word-stats");
+    expect(artifact.content.skillAssignment.projectSkillId).toBe("ui-computed-display");
     expect(artifact.content.acceptanceCriteria).toContain("文章详情页正文下方显示字数");
+    expect(fs.existsSync(path.join(projectRoot, ".ai-runs", "skill-memory", "conduit-change-memory", "change-journal.md"))).toBe(true);
   });
 });

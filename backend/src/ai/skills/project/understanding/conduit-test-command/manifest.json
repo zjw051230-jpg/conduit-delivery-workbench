@@ -1,0 +1,103 @@
+{
+  "id": "conduit-test-command",
+  "name": "Conduit Test Command",
+  "type": "understanding",
+  "version": "1.0.0",
+  "description": "Select Conduit testProfile and candidate commands by discovering package scripts before running validation.",
+  "triggers": [
+    "test command",
+    "testProfile",
+    "frontend-only",
+    "backend-only",
+    "fullstack-targeted",
+    "unknown",
+    "none",
+    "lint",
+    "unit test"
+  ],
+  "riskLevel": "system",
+  "requiresUnderstandingSkills": [
+    "conduit-repo-map"
+  ],
+  "inputs": [
+    "repoUnderstanding",
+    "changedFiles",
+    "taskSpec",
+    "targetRepoPath"
+  ],
+  "outputs": [
+    "testPlan"
+  ],
+  "contextHints": {
+    "candidatePaths": [
+      "package.json",
+      "frontend/package.json",
+      "client/package.json",
+      "backend/package.json",
+      "server/package.json",
+      "api/package.json",
+      "apps/*/package.json",
+      "vite.config.*",
+      "jest.config.*",
+      "vitest.config.*",
+      "playwright.config.*"
+    ],
+    "searchHints": [
+      "rg -n \"\\\"scripts\\\"|\\\"test\\\"|\\\"lint\\\"|vitest|jest|playwright|cypress\" TARGET_REPO_PATH",
+      "rg -n \"describe\\(|it\\(|test\\(\" TARGET_REPO_PATH"
+    ],
+    "excludePaths": [
+      ".git",
+      ".env",
+      "node_modules",
+      "dist",
+      "build",
+      "coverage"
+    ],
+    "verificationSteps": [
+      "Read package scripts before selecting commands.",
+      "Match changedFiles to frontend, backend, shared, or docs-only areas.",
+      "Prefer targeted lint/unit commands when scripts exist."
+    ]
+  },
+  "clarificationPolicy": {
+    "mode": "non-blocking",
+    "blockingQuestions": [],
+    "safeDefaults": [
+      "Use unknown when changed file ownership or scripts cannot be discovered.",
+      "Use none only for read-only understanding outputs or documentation-only Skill assets."
+    ],
+    "confirmationDefaults": []
+  },
+  "agentDefaults": [
+    {
+      "key": "profiles",
+      "value": [
+        "frontend-only",
+        "backend-only",
+        "fullstack-targeted",
+        "unknown",
+        "none"
+      ]
+    }
+  ],
+  "allowedChanges": [],
+  "forbiddenChanges": [
+    "Any Conduit source code modification",
+    "Any generated patch",
+    ".env",
+    "lockfiles",
+    "node_modules",
+    "dist",
+    "build",
+    "coverage",
+    ".git"
+  ],
+  "testProfile": "none",
+  "successCriteria": [
+    "Test plan includes selected profile, discovered scripts, candidate commands, and rationale.",
+    "No command is invented without script or tool evidence.",
+    "The plan distinguishes frontend-only, backend-only, fullstack-targeted, unknown, and none.",
+    "No source files are modified."
+  ]
+}

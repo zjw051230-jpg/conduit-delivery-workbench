@@ -1,0 +1,16 @@
+{
+  "targetRepoPath": "TARGET_REPO_PATH",
+  "taskSpec": {
+    "summary": "Add Article.coverImage and show it on editor, article list, article detail, and profile article cards.",
+    "riskLevel": "L2"
+  },
+  "fieldSpec": {
+    "entity": "Article",
+    "fieldName": "coverImage",
+    "type": "string URL",
+    "required": false,
+    "defaultForOldData": "",
+    "validation": "optional URL string",
+    "displaySurfaces": ["editor", "list", "detail", "profile"]
+  }
+}

@@ -1,0 +1,140 @@
+{
+  "id": "add-entity-field",
+  "name": "Add Entity Field",
+  "type": "requirement-execution",
+  "version": "1.0.0",
+  "description": "Cross-stack L2 entity field additions such as Article.coverImage across model/schema, API, frontend client, forms, displays, and tests.",
+  "triggers": [
+    "add field",
+    "new entity field",
+    "Article.coverImage",
+    "cover image",
+    "model schema API frontend form",
+    "cross-stack field",
+    "persisted field"
+  ],
+  "riskLevel": "L2",
+  "requiresUnderstandingSkills": [
+    "conduit-repo-map",
+    "conduit-domain-model",
+    "conduit-frontend-map",
+    "conduit-test-command"
+  ],
+  "inputs": [
+    "taskSpec",
+    "repoUnderstanding",
+    "domainUnderstanding",
+    "frontendUnderstanding",
+    "testPlan",
+    "fieldSpec"
+  ],
+  "outputs": [
+    "clarificationResult",
+    "contextPackageRequest",
+    "patchPlan",
+    "apiContractImpact",
+    "testPlan",
+    "completionReport"
+  ],
+  "contextHints": {
+    "candidatePaths": [
+      "src",
+      "client/src",
+      "frontend/src",
+      "server",
+      "backend",
+      "api",
+      "models",
+      "entities",
+      "schemas",
+      "controllers",
+      "routes",
+      "serializers",
+      "services",
+      "migrations",
+      "tests",
+      "spec"
+    ],
+    "searchHints": [
+      "rg -n \"Article|article|slug|title|description|body|tagList|createdAt|updatedAt\" TARGET_REPO_PATH",
+      "rg -n \"createArticle|updateArticle|getArticle|articles|serializer|schema|model|entity\" TARGET_REPO_PATH",
+      "rg -n \"Editor|ArticlePreview|ArticlePage|ProfilePage|ArticleList\" TARGET_REPO_PATH"
+    ],
+    "excludePaths": [
+      ".git",
+      ".env",
+      "node_modules",
+      "dist",
+      "build",
+      "coverage"
+    ],
+    "verificationSteps": [
+      "Collect field name, type, required flag, default value, validation, display locations, and old-data behavior before patching.",
+      "Verify backend persistence and API response/update/create paths before changing frontend.",
+      "Verify list, detail, profile, and editor surfaces before selecting files."
+    ]
+  },
+  "clarificationPolicy": {
+    "mode": "blocking",
+    "blockingQuestions": [
+      "What is the exact entity and field name?",
+      "What is the field type?",
+      "Is the field required?",
+      "What default should old data use?",
+      "Where should the field be displayed?",
+      "What validation rules apply?",
+      "Should create and update forms both support the field?"
+    ],
+    "safeDefaults": [
+      "For Article.coverImage, treat the type as optional string URL only if the user has not specified stricter rules and confirmation is available.",
+      "Preserve backward compatibility for existing records.",
+      "Do not make old data invalid without an explicit migration/default decision."
+    ],
+    "confirmationDefaults": [
+      "Confirm API contract impact before patching.",
+      "Confirm old-data behavior before adding required fields."
+    ]
+  },
+  "agentDefaults": [
+    {
+      "key": "requiredCoverage",
+      "value": [
+        "model/schema",
+        "API create/update/read",
+        "frontend client",
+        "editor form",
+        "list display",
+        "detail display",
+        "profile display",
+        "tests"
+      ]
+    }
+  ],
+  "allowedChanges": [
+    "Verified backend model/schema/persistence files under TARGET_REPO_PATH",
+    "Verified backend route/controller/serializer/service files under TARGET_REPO_PATH",
+    "Verified frontend API client/type files under TARGET_REPO_PATH",
+    "Verified editor form and display surface files under TARGET_REPO_PATH",
+    "Verified targeted tests under TARGET_REPO_PATH"
+  ],
+  "forbiddenChanges": [
+    "Unrelated entity behavior",
+    "Authentication or authorization behavior",
+    "Follow, Favorite, or like behavior unless explicitly part of the field request",
+    "Unverified generated files",
+    ".env",
+    "lockfiles",
+    "node_modules",
+    "dist",
+    "build",
+    "coverage",
+    ".git"
+  ],
+  "testProfile": "fullstack-targeted",
+  "successCriteria": [
+    "Field spec is explicit before patching.",
+    "Model/schema, API create/update/read, frontend client, editor form, list/detail/profile surfaces, and tests are considered.",
+    "Backward compatibility for existing data is documented.",
+    "Fullstack-targeted validation plan is produced from discovered scripts."
+  ]
+}

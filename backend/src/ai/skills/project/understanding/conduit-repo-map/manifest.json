@@ -1,0 +1,95 @@
+{
+  "id": "conduit-repo-map",
+  "name": "Conduit Repo Map",
+  "type": "understanding",
+  "version": "1.0.0",
+  "description": "Map Conduit repository structure, frontend/backend boundaries, and TARGET_REPO_PATH separation before context selection or code generation.",
+  "triggers": [
+    "repo map",
+    "repository structure",
+    "module boundary",
+    "locate Conduit",
+    "TARGET_REPO_PATH",
+    "frontend backend boundary"
+  ],
+  "riskLevel": "system",
+  "requiresUnderstandingSkills": [],
+  "inputs": [
+    "targetRepoPath",
+    "taskSpec",
+    "changedFiles"
+  ],
+  "outputs": [
+    "repoUnderstanding"
+  ],
+  "contextHints": {
+    "candidatePaths": [
+      "package.json",
+      "frontend/package.json",
+      "client/package.json",
+      "backend/package.json",
+      "server/package.json",
+      "api/package.json",
+      "apps/*/package.json",
+      "src",
+      "client",
+      "frontend",
+      "server",
+      "backend",
+      "api"
+    ],
+    "searchHints": [
+      "rg --files TARGET_REPO_PATH",
+      "rg -n \"conduit|realworld|article|profile|favorite|follow\" TARGET_REPO_PATH"
+    ],
+    "excludePaths": [
+      ".git",
+      ".env",
+      "node_modules",
+      "dist",
+      "build",
+      "coverage"
+    ],
+    "verificationSteps": [
+      "Verify every reported path exists in TARGET_REPO_PATH before using it.",
+      "Read package, workspace, or project metadata before deciding repository shape.",
+      "Separate main-system files from target Conduit files in all outputs."
+    ]
+  },
+  "clarificationPolicy": {
+    "mode": "non-blocking",
+    "blockingQuestions": [
+      "Ask for targetRepoPath only if the orchestrator did not provide TARGET_REPO_PATH."
+    ],
+    "safeDefaults": [
+      "Treat the layout as unknown until repository metadata is inspected.",
+      "Prefer candidatePaths and searchHints over asserted exact paths."
+    ],
+    "confirmationDefaults": []
+  },
+  "agentDefaults": [
+    {
+      "key": "targetRepoPathPlaceholder",
+      "value": "TARGET_REPO_PATH"
+    }
+  ],
+  "allowedChanges": [],
+  "forbiddenChanges": [
+    "Any Conduit source code modification",
+    "Any generated patch",
+    ".env",
+    "lockfiles",
+    "node_modules",
+    "dist",
+    "build",
+    "coverage",
+    ".git"
+  ],
+  "testProfile": "none",
+  "successCriteria": [
+    "Repo understanding object separates frontend, backend, shared, tests, and scripts.",
+    "All paths are marked as verified or candidate.",
+    "Output uses TARGET_REPO_PATH and contains no local absolute path.",
+    "No source files are modified."
+  ]
+}

@@ -1,0 +1,122 @@
+{
+  "id": "conduit-change-memory",
+  "name": "Conduit Change Memory",
+  "type": "delivery",
+  "version": "1.0.0",
+  "description": "Record post-delivery Conduit change memory, extract reusable project facts, and suggest Skill maintenance after test-repair-pr.",
+  "triggers": [
+    "change memory",
+    "project memory",
+    "record change",
+    "change journal",
+    "skill impact analysis",
+    "memory update",
+    "post delivery memory",
+    "after PR draft"
+  ],
+  "riskLevel": "system",
+  "requiresUnderstandingSkills": [
+    "conduit-repo-map",
+    "conduit-test-command"
+  ],
+  "inputs": [
+    "taskSpec",
+    "matchedSkills",
+    "changedFiles",
+    "testRuns",
+    "failureAnalysis",
+    "prDraft",
+    "discoveredFacts",
+    "skillOutputs"
+  ],
+  "outputs": [
+    "changeRecord",
+    "memoryUpdates",
+    "skillImpactAnalysis",
+    "writePlan"
+  ],
+  "contextHints": {
+    "candidatePaths": [
+      "backend/src/ai/skills/project/delivery/conduit-change-memory/references/change-journal.md",
+      "backend/src/ai/skills/project/delivery/conduit-change-memory/references/project-facts.md",
+      "backend/src/ai/skills/project/delivery/conduit-change-memory/references/skill-impact-index.md",
+      "backend/src/ai/skills/project/delivery/conduit-change-memory/references/rollout-summaries",
+      "backend/src/ai/skills/project/*/*/manifest.json",
+      "backend/src/ai/skills/project/*/*/SKILL.md"
+    ],
+    "searchHints": [
+      "rg -n \"changeId|taskSummary|skillImpact|project fact|invalidated\" backend/src/ai/skills/project/delivery/conduit-change-memory/references",
+      "rg -n \"searchHints|clarificationPolicy|forbiddenChanges|testProfile\" backend/src/ai/skills/project"
+    ],
+    "excludePaths": [
+      ".git",
+      ".env",
+      "node_modules",
+      "dist",
+      "build",
+      "coverage"
+    ],
+    "verificationSteps": [
+      "Use taskSpec, changedFiles, testRuns, failureAnalysis, prDraft, discoveredFacts, and skillOutputs as evidence.",
+      "Separate one-time episodic history from reusable project facts and procedural Skill maintenance suggestions.",
+      "Mark stale or superseded facts as invalidated instead of deleting them.",
+      "Do not convert unverified target repository paths into permanent project facts."
+    ]
+  },
+  "clarificationPolicy": {
+    "mode": "non-blocking",
+    "blockingQuestions": [],
+    "safeDefaults": [
+      "If evidence is incomplete, write an episodic journal entry but do not add stable project facts.",
+      "If a discovered fact conflicts with an existing memory, suggest invalidation instead of overwriting silently.",
+      "If another Skill may be stale, output skillImpactAnalysis instead of editing that Skill directly."
+    ],
+    "confirmationDefaults": [
+      "Treat target repository facts as guidance until reverified against TARGET_REPO_PATH.",
+      "Require explicit follow-up approval before applying suggested updates to other Skills."
+    ]
+  },
+  "agentDefaults": [
+    {
+      "key": "memoryTypes",
+      "value": [
+        "semantic",
+        "episodic",
+        "procedural"
+      ]
+    },
+    {
+      "key": "defaultOutcome",
+      "value": "partial"
+    },
+    {
+      "key": "defaultConfidence",
+      "value": "medium"
+    }
+  ],
+  "allowedChanges": [
+    "This Skill's memory reference files",
+    "This Skill's rollout summary files",
+    "This Skill's examples and manifest",
+    "Skill registry entry for conduit-change-memory"
+  ],
+  "forbiddenChanges": [
+    "Conduit business source code",
+    "Other Skill files unless a separate maintenance task approves the change",
+    ".env",
+    "lockfiles",
+    "node_modules",
+    "dist",
+    "build",
+    "coverage",
+    ".git"
+  ],
+  "testProfile": "none",
+  "successCriteria": [
+    "A changeRecord summarizes the task, matched Skills, changed files, tests, and outcome.",
+    "memoryUpdates separate journal entries, stable facts, invalidations, and rollout summary path.",
+    "skillImpactAnalysis suggests changes to other Skills without applying them automatically.",
+    "writePlan restricts writes to this memory Skill's files unless separately approved.",
+    "No unverified Conduit path is stored as a permanent fact."
+  ]
+}

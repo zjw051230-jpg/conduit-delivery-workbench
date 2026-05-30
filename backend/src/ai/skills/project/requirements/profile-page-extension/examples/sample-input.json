@@ -1,0 +1,19 @@
+{
+  "targetRepoPath": "TARGET_REPO_PATH",
+  "taskSpec": {
+    "summary": "Add an About Me tab on the Profile page and show user.bio.",
+    "riskLevel": "L1"
+  },
+  "frontendUnderstanding": {
+    "surfaces": {
+      "profile": {
+        "verifiedPaths": []
+      }
+    }
+  },
+  "domainUnderstanding": {
+    "entities": {
+      "Profile": {}
+    }
+  }
+}

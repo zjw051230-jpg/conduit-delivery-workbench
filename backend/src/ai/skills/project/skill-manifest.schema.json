@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Super Individual Skill Manifest",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "type",
+    "version",
+    "description",
+    "triggers",
+    "riskLevel",
+    "inputs",
+    "outputs",
+    "successCriteria"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "name": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "understanding",
+        "requirement-execution",
+        "delivery"
+      ]
+    },
+    "version": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "triggers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "riskLevel": {
+      "type": "string",
+      "enum": [
+        "system",
+        "L1",
+        "L2",
+        "L3"
+      ]
+    },
+    "requiresUnderstandingSkills": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "inputs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "outputs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "contextHints": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "clarificationPolicy": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "agentDefaults": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "allowedChanges": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "forbiddenChanges": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "testProfile": {
+      "type": "string",
+      "enum": [
+        "frontend-only",
+        "backend-only",
+        "fullstack-targeted",
+        "none",
+        "unknown"
+      ]
+    },
+    "successCriteria": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": true
+}

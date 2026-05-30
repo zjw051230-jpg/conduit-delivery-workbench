@@ -1,0 +1,8 @@
+{
+  "targetRepoPath": "TARGET_REPO_PATH",
+  "taskSpec": {
+    "summary": "Add a computed reading time to article cards.",
+    "riskLevel": "L1"
+  },
+  "changedFiles": []
+}

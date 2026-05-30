@@ -1,0 +1,21 @@
+{
+  "targetRepoPath": "TARGET_REPO_PATH",
+  "repoUnderstanding": {
+    "scripts": {
+      "packageScripts": {
+        "lint": "npm run lint",
+        "test": "npm test"
+      }
+    },
+    "frontend": {
+      "verifiedPaths": ["src"]
+    }
+  },
+  "changedFiles": [
+    "VERIFIED_FRONTEND_ARTICLE_CARD_FILE"
+  ],
+  "taskSpec": {
+    "summary": "Show computed reading time on article cards.",
+    "riskLevel": "L1"
+  }
+}

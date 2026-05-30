@@ -1,0 +1,102 @@
+{
+  "id": "conduit-frontend-map",
+  "name": "Conduit Frontend Map",
+  "type": "understanding",
+  "version": "1.0.0",
+  "description": "Locate Conduit frontend pages, routes, components, forms, and display surfaces with candidate paths and verification steps.",
+  "triggers": [
+    "frontend map",
+    "HomePage",
+    "ArticlePage",
+    "EditorPage",
+    "ProfilePage",
+    "SettingsPage",
+    "Popular Tags",
+    "route component form display"
+  ],
+  "riskLevel": "system",
+  "requiresUnderstandingSkills": [
+    "conduit-repo-map"
+  ],
+  "inputs": [
+    "repoUnderstanding",
+    "taskSpec",
+    "targetRepoPath"
+  ],
+  "outputs": [
+    "frontendUnderstanding"
+  ],
+  "contextHints": {
+    "candidatePaths": [
+      "src/pages",
+      "src/routes",
+      "src/components",
+      "src/views",
+      "src/features",
+      "client/src/pages",
+      "client/src/components",
+      "frontend/src/pages",
+      "frontend/src/components",
+      "apps/*/src"
+    ],
+    "searchHints": [
+      "rg -n \"HomePage|ArticlePage|EditorPage|ProfilePage|SettingsPage\" TARGET_REPO_PATH",
+      "rg -n \"Popular Tags|popular tags|tag-list|tagList|ArticleList|ArticlePreview|Editor\" TARGET_REPO_PATH",
+      "rg -n \"route|Routes|Router|createBrowserRouter|route path\" TARGET_REPO_PATH"
+    ],
+    "excludePaths": [
+      ".git",
+      ".env",
+      "node_modules",
+      "dist",
+      "build",
+      "coverage"
+    ],
+    "verificationSteps": [
+      "Confirm framework and route mechanism before naming pages.",
+      "Verify where data is fetched, transformed, and rendered.",
+      "Record list, detail, editor, profile, settings, and sidebar surfaces separately."
+    ]
+  },
+  "clarificationPolicy": {
+    "mode": "non-blocking",
+    "blockingQuestions": [],
+    "safeDefaults": [
+      "If page names differ, map by route purpose and visible behavior.",
+      "Treat all candidate paths as unverified until inspected."
+    ],
+    "confirmationDefaults": []
+  },
+  "agentDefaults": [
+    {
+      "key": "surfaceNames",
+      "value": [
+        "home",
+        "articleDetail",
+        "editor",
+        "profile",
+        "settings",
+        "popularTags"
+      ]
+    }
+  ],
+  "allowedChanges": [],
+  "forbiddenChanges": [
+    "Any Conduit source code modification",
+    "Any generated patch",
+    ".env",
+    "lockfiles",
+    "node_modules",
+    "dist",
+    "build",
+    "coverage",
+    ".git"
+  ],
+  "testProfile": "none",
+  "successCriteria": [
+    "Frontend understanding object maps route, data, form, list, detail, and sidebar surfaces.",
+    "Every path is marked verified or candidate.",
+    "Output includes search hints for missing surfaces.",
+    "No source files are modified."
+  ]
+}

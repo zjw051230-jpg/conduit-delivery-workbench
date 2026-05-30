@@ -1,6 +1,8 @@
 const path = require("node:path");
 const { loadSkills } = require("../skills/skillLoader");
+const { loadProjectSkills } = require("../skills/projectSkillLoader");
 const { SkillRegistry } = require("../skills/skillRegistry");
+const { resolveSkillPlan } = require("../skills/skillPlanResolver");
 const { buildRepositoryIndex } = require("../context/repositoryIndexer");
 const { retrieveContext } = require("../context/retriever");
 const { clarifyRequirement } = require("../agents/pmClarifierAgent");
@@ -11,6 +13,7 @@ const { applyCodeChanges, previewCodeChanges } = require("../agents/codeWriterAg
 const { runTestCommands } = require("../agents/testRunnerAgent");
 const { createDeliveryReport } = require("../agents/deliveryReporterAgent");
 const { createWorkBreakdownArtifact } = require("../agents/workBreakdownAgent");
+const { writeChangeMemory } = require("../memory/changeMemoryStore");
 const { runAlgorithmCompetitionPipeline } = require("./algorithmCompetitionPipeline");
 const { TASK_MODES, normalizeTaskMode } = require("./taskModes");
 
@@ -30,16 +33,20 @@ function runPipeline({ requirement, taskMode, applyChanges = false, runTests = f
   }
 
   const skillsDirectory = path.join(__dirname, "../skills/definitions");
+  const projectSkillsDirectory = path.join(__dirname, "../skills/project");
   const skills = loadSkills(skillsDirectory);
+  const projectSkills = loadProjectSkills(projectSkillsDirectory);
   const registry = new SkillRegistry(skills);
   const matchedSkill = registry.match(requirement);
+  const skillPlan = resolveSkillPlan({ requirement, legacySkill: matchedSkill, projectSkills });
   const stages = [];
 
-  const clarification = clarifyRequirement(requirement, matchedSkill);
+  const clarification = clarifyRequirement(requirement, matchedSkill || skillPlan.primaryProjectSkill);
   stages.push(stage("pm-clarifier", clarification.status, clarification));
 
   const dsl = createRequirementDsl(requirement, {
     matchedSkill,
+    skillPlan,
     missingQuestions: clarification.missingQuestions,
     clarifications: {},
   });
@@ -89,6 +96,19 @@ function runPipeline({ requirement, taskMode, applyChanges = false, runTests = f
   });
   stages.push(stage("delivery-reporter", "completed", report));
 
+  const memoryResult = writeChangeMemory({
+    runDirectory: config.projectRoot ? path.join(config.projectRoot, ".ai-runs") : null,
+    taskId,
+    createdAt,
+    requirement,
+    dsl,
+    writeResult,
+    testResult,
+    report,
+    skillPlan,
+  });
+  stages.push(stage("change-memory", memoryResult.status, memoryResult));
+
   return {
     id: taskId,
     createdAt,
@@ -97,6 +117,9 @@ function runPipeline({ requirement, taskMode, applyChanges = false, runTests = f
     applyChanges,
     runTests,
     status: testResult.status === "failed" ? "needs_fix" : "completed",
+    matchedSkill,
+    projectMatchedSkill: skillPlan.primaryProjectSkill,
+    skillPlan,
     dsl,
     stages,
     artifacts: [workBreakdownArtifact],

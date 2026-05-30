@@ -1,0 +1,12 @@
+{
+  "targetRepoPath": "TARGET_REPO_PATH",
+  "repoUnderstanding": {
+    "layout": "unknown",
+    "frontend": {
+      "verifiedPaths": []
+    }
+  },
+  "taskSpec": {
+    "summary": "Show a Top 5 label next to the first five Popular Tags."
+  }
+}

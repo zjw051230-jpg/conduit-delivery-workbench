@@ -42,9 +42,15 @@ function createSkillAssignment(dsl) {
   return {
     skillId: dsl.targetSkillId || null,
     skillName: dsl.skillName || null,
+    projectSkillId: dsl.projectSkillId || null,
+    projectSkillName: dsl.projectSkillName || null,
     requirementType: dsl.requirementType || "unknown",
+    riskLevel: dsl.riskLevel || null,
+    testProfile: dsl.testProfile || "unknown",
     reason: dsl.targetSkillId
-      ? `Matched ${dsl.requirementType || "unknown"} requirement to skill ${dsl.targetSkillId}.`
+      ? `Matched ${dsl.requirementType || "unknown"} requirement to writer skill ${dsl.targetSkillId} and project skill ${dsl.projectSkillId || "none"}.`
+      : dsl.projectSkillId
+        ? `Matched requirement to project skill ${dsl.projectSkillId}, but no legacy writer is available yet.`
       : "No registered skill matched; keep the task in clarification before implementation.",
   };
 }
@@ -66,6 +72,9 @@ function createRiskNotes({ dsl, frontendTasks, backendTasks, dataModelTasks, tes
   }
   if (testTasks.length === 0) {
     notes.push("No test command was declared by the matched skill.");
+  }
+  if (dsl.forbiddenChanges?.length > 0) {
+    notes.push(`Project Skill forbids: ${dsl.forbiddenChanges.slice(0, 4).join(", ")}.`);
   }
 
   return notes;

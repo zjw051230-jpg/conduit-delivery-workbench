@@ -79,6 +79,7 @@ describe("algorithm competition pipeline", () => {
       "code-writer",
       "test-runner",
       "delivery-reporter",
+      "change-memory",
     ]);
     expect(task.report.changedFiles).toEqual([
       "frontend/src/components/PopularTags/TagButton.jsx",

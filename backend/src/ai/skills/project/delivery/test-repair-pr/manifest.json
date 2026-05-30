@@ -1,0 +1,115 @@
+{
+  "id": "test-repair-pr",
+  "name": "Test Repair PR",
+  "type": "delivery",
+  "version": "1.0.0",
+  "description": "Parse Conduit test results, classify failures, propose repair actions, and produce PR Draft structure after validation.",
+  "triggers": [
+    "test repair",
+    "parse test output",
+    "stdout stderr exitCode",
+    "lint failure",
+    "import failure",
+    "undefined failure",
+    "command missing",
+    "dependency missing",
+    "PR Draft"
+  ],
+  "riskLevel": "system",
+  "requiresUnderstandingSkills": [
+    "conduit-repo-map",
+    "conduit-test-command"
+  ],
+  "inputs": [
+    "taskSpec",
+    "changedFiles",
+    "testPlan",
+    "testRuns",
+    "completionReports"
+  ],
+  "outputs": [
+    "failureAnalysis",
+    "repairSuggestions",
+    "rerunPlan",
+    "prDraft"
+  ],
+  "contextHints": {
+    "candidatePaths": [
+      "package.json",
+      "frontend/package.json",
+      "client/package.json",
+      "backend/package.json",
+      "server/package.json",
+      "api/package.json",
+      "apps/*/package.json",
+      "tests",
+      "spec",
+      "src"
+    ],
+    "searchHints": [
+      "rg -n \"from .*|import .*|undefined|not defined|Cannot find module|expected|received\" TARGET_REPO_PATH",
+      "rg -n \"describe\\(|it\\(|test\\(\" TARGET_REPO_PATH"
+    ],
+    "excludePaths": [
+      ".git",
+      ".env",
+      "node_modules",
+      "dist",
+      "build",
+      "coverage"
+    ],
+    "verificationSteps": [
+      "Classify each failure using stdout, stderr, and exitCode.",
+      "Tie repair suggestions to changed files or missing commands with evidence.",
+      "Do not invent business behavior while suggesting repairs."
+    ]
+  },
+  "clarificationPolicy": {
+    "mode": "non-blocking",
+    "blockingQuestions": [],
+    "safeDefaults": [
+      "If output is incomplete, request rerun with captured stdout, stderr, and exitCode.",
+      "If failure is business assertion mismatch, route to the originating requirement Skill."
+    ],
+    "confirmationDefaults": [
+      "PR Draft should list tests run and known failures honestly."
+    ]
+  },
+  "agentDefaults": [
+    {
+      "key": "failureCategories",
+      "value": [
+        "lint",
+        "import",
+        "undefined",
+        "test-failure",
+        "command-missing",
+        "dependency-missing",
+        "unknown"
+      ]
+    }
+  ],
+  "allowedChanges": [
+    "Repair suggestions",
+    "Rerun plan",
+    "PR Draft text"
+  ],
+  "forbiddenChanges": [
+    "Business logic decisions not present in taskSpec or originating Skill",
+    "Unrelated code changes",
+    ".env",
+    "lockfiles",
+    "node_modules",
+    "dist",
+    "build",
+    "coverage",
+    ".git"
+  ],
+  "testProfile": "unknown",
+  "successCriteria": [
+    "Failure analysis classifies stdout, stderr, and exitCode evidence.",
+    "Repair suggestions are scoped and routed to the correct Skill when business behavior is involved.",
+    "PR Draft includes summary, changed files, tests run, failures, and risk notes.",
+    "No business behavior is invented."
+  ]
+}

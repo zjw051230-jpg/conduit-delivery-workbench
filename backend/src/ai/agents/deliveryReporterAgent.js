@@ -3,7 +3,9 @@ function createDeliveryReport({ taskId, dsl, moduleMap, solutionPlan, writeResul
     agent: "Delivery Reporter Agent",
     taskId,
     summary: dsl.targetSkillId
-      ? `需求命中 Skill：${dsl.skillName || dsl.targetSkillId}，状态：${writeResult.status}。`
+      ? `需求命中 writer Skill：${dsl.legacySkillName || dsl.targetSkillId}，工程级 Skill：${dsl.projectSkillId || "未命中"}，状态：${writeResult.status}。`
+      : dsl.projectSkillId
+        ? `需求命中工程级 Skill：${dsl.projectSkillName || dsl.projectSkillId}，当前为规划模式，状态：${writeResult.status}。`
       : "需求未命中 Skill，已停止在澄清阶段。",
     changedFiles: writeResult.changedFiles || [],
     locatedFiles: moduleMap.files.map((file) => file.relativePath),
@@ -13,6 +15,13 @@ function createDeliveryReport({ taskId, dsl, moduleMap, solutionPlan, writeResul
       command: result.command,
       exitCode: result.exitCode,
     })) || [],
+    projectSkill: {
+      id: dsl.projectSkillId,
+      riskLevel: dsl.riskLevel,
+      testProfile: dsl.testProfile,
+      requiredUnderstandingSkillIds: dsl.requiredUnderstandingSkillIds || [],
+      deliverySkillIds: dsl.deliverySkillIds || [],
+    },
     nextActions: buildNextActions(writeResult, testResult),
   };
 }

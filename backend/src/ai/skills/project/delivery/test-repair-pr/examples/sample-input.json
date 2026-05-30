@@ -1,0 +1,25 @@
+{
+  "targetRepoPath": "TARGET_REPO_PATH",
+  "taskSpec": {
+    "summary": "Add Article.coverImage across Conduit."
+  },
+  "changedFiles": [
+    "VERIFIED_FRONTEND_ARTICLE_CARD_FILE",
+    "VERIFIED_FRONTEND_ARTICLE_API_CLIENT_FILE"
+  ],
+  "testPlan": {
+    "testProfile": "fullstack-targeted",
+    "commands": [
+      { "command": "npm run lint" },
+      { "command": "npm test" }
+    ]
+  },
+  "testRuns": [
+    {
+      "command": "npm run lint",
+      "stdout": "",
+      "stderr": "Cannot find module '<missing-module>'",
+      "exitCode": 1
+    }
+  ]
+}

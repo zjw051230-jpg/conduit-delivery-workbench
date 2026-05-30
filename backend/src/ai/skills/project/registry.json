@@ -1,0 +1,48 @@
+{
+  "registryVersion": "1.0.0",
+  "targetRepoPathPlaceholder": "TARGET_REPO_PATH",
+  "schemaPath": "skill-manifest.schema.json",
+  "loadOrder": [
+    "understanding",
+    "requirements",
+    "delivery"
+  ],
+  "skills": [
+    {
+      "id": "conduit-repo-map",
+      "manifestPath": "understanding/conduit-repo-map/manifest.json"
+    },
+    {
+      "id": "conduit-domain-model",
+      "manifestPath": "understanding/conduit-domain-model/manifest.json"
+    },
+    {
+      "id": "conduit-frontend-map",
+      "manifestPath": "understanding/conduit-frontend-map/manifest.json"
+    },
+    {
+      "id": "conduit-test-command",
+      "manifestPath": "understanding/conduit-test-command/manifest.json"
+    },
+    {
+      "id": "ui-computed-display",
+      "manifestPath": "requirements/ui-computed-display/manifest.json"
+    },
+    {
+      "id": "profile-page-extension",
+      "manifestPath": "requirements/profile-page-extension/manifest.json"
+    },
+    {
+      "id": "add-entity-field",
+      "manifestPath": "requirements/add-entity-field/manifest.json"
+    },
+    {
+      "id": "test-repair-pr",
+      "manifestPath": "delivery/test-repair-pr/manifest.json"
+    },
+    {
+      "id": "conduit-change-memory",
+      "manifestPath": "delivery/conduit-change-memory/manifest.json"
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "targetRepoPath": "TARGET_REPO_PATH",
+  "taskSpec": {
+    "summary": "Add Article.coverImage and show it on editor, list, detail, and profile article cards.",
+    "riskLevel": "L2"
+  },
+  "matchedSkills": [
+    "conduit-repo-map",
+    "conduit-domain-model",
+    "conduit-frontend-map",
+    "add-entity-field",
+    "conduit-test-command",
+    "test-repair-pr"
+  ],
+  "changedFiles": [
+    "VERIFIED_ARTICLE_MODEL_FILE",
+    "VERIFIED_ARTICLE_API_FILE",
+    "VERIFIED_ARTICLE_EDITOR_FILE",
+    "VERIFIED_ARTICLE_CARD_FILE"
+  ],
+  "testRuns": [
+    {
+      "command": "npm run lint",
+      "exitCode": 0,
+      "status": "passed"
+    },
+    {
+      "command": "npm test",
+      "exitCode": 0,
+      "status": "passed"
+    }
+  ],
+  "failureAnalysis": [],
+  "prDraft": {
+    "title": "Add Article cover image support",
+    "summary": [
+      "Adds optional coverImage data flow and display surfaces."
+    ],
+    "testsRun": [
+      "npm run lint",
+      "npm test"
+    ]
+  },
+  "discoveredFacts": [
+    {
+      "memoryType": "semantic",
+      "fact": "Article.coverImage was implemented as an optional string URL with fallback display for missing values.",
+      "confidence": "medium",
+      "verifiedAgainstTargetRepo": true
+    },
+    {
+      "memoryType": "procedural",
+      "fact": "Article card discovery should include the verified card component naming from the run.",
+      "confidence": "medium",
+      "verifiedAgainstTargetRepo": true
+    }
+  ],
+  "skillOutputs": []
+}

@@ -1,6 +1,8 @@
 const express = require("express");
 const { loadSkills } = require("../ai/skills/skillLoader");
+const { loadProjectSkills } = require("../ai/skills/projectSkillLoader");
 const { SkillRegistry } = require("../ai/skills/skillRegistry");
+const { resolveSkillPlan } = require("../ai/skills/skillPlanResolver");
 const { buildRepositoryIndex } = require("../ai/context/repositoryIndexer");
 const { retrieveContext } = require("../ai/context/retriever");
 const { runPipeline } = require("../ai/orchestration/runPipeline");
@@ -22,9 +24,11 @@ const { chatCompletion } = require("../ai/model/openaiCompatibleClient");
 function createAiRouter({ config, taskStore }) {
   const router = express.Router();
   const skillsDirectory = require("node:path").join(__dirname, "../ai/skills/definitions");
+  const projectSkillsDirectory = require("node:path").join(__dirname, "../ai/skills/project");
 
   router.get("/config", (req, res) => {
     const skills = loadSkills(skillsDirectory);
+    const projectSkills = loadProjectSkills(projectSkillsDirectory);
     res.json({
       repoPath: config.conduitRepoPath,
       ark: {
@@ -32,27 +36,46 @@ function createAiRouter({ config, taskStore }) {
         modelConfigured: Boolean(config.ark.model),
         apiKeyConfigured: Boolean(config.ark.apiKey),
       },
-      skillCount: skills.length,
+      skillCount: skills.length + projectSkills.length,
+      legacySkillCount: skills.length,
+      projectSkillCount: projectSkills.length,
+      skillLayers: [...new Set(projectSkills.map((skill) => skill.type))],
       skills: skills.map(({ id, name, requirementType }) => ({ id, name, requirementType })),
     });
   });
 
   router.get("/skills", (req, res) => {
-    res.json({ skills: loadSkills(skillsDirectory) });
+    res.json({
+      legacySkills: loadSkills(skillsDirectory),
+      projectSkills: loadProjectSkills(projectSkillsDirectory),
+    });
   });
 
   router.post("/context/search", (req, res) => {
     const { query = "", limit = 8 } = req.body || {};
     const skills = loadSkills(skillsDirectory);
-    const matchedSkill = new SkillRegistry(skills).match(query);
+    const projectSkills = loadProjectSkills(projectSkillsDirectory);
+    const legacyMatchedSkill = new SkillRegistry(skills).match(query);
+    const skillPlan = resolveSkillPlan({ requirement: query, legacySkill: legacyMatchedSkill, projectSkills });
+    const projectMatchedSkill = skillPlan.primaryProjectSkill;
     const index = buildRepositoryIndex(config.conduitRepoPath);
     const results = retrieveContext({
       query,
       index,
-      contextHints: matchedSkill?.contextHints || [],
+      contextHints: [
+        ...(legacyMatchedSkill?.contextHints || []),
+        ...(skillPlan.primaryProjectContextHints?.candidatePaths || []),
+      ],
       limit,
     });
-    res.json({ matchedSkill, filesIndexed: index.length, results });
+    res.json({
+      matchedSkill: legacyMatchedSkill,
+      legacyMatchedSkill,
+      projectMatchedSkill,
+      skillPlan,
+      filesIndexed: index.length,
+      results,
+    });
   });
 
   router.post("/tasks", (req, res, next) => {
