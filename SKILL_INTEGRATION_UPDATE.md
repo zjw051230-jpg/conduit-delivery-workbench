@@ -30,6 +30,38 @@ safeDefaults
 requiredUnderstandingSkillIds
 deliverySkillIds
 projectContextHints
+capabilityClasses
+activationModes
+workflowPhases
+controlRoles
+```
+
+## Skill Taxonomy v2
+
+本次补充了 `classification` 能力矩阵，让工程级 Skill 不只按目录层级分类，还能说明它在 Agent 工作流中的专业角色。
+
+```txt
+standard          agent-skills-compatible
+capabilityClass   能力类型，例如 repository-context、task-operation、quality-gate
+activationMode    激活方式，例如 dependency-loaded、keyword-triggered、post-task-hook
+workflowPhase     工作阶段，例如 orient、modify、verify、learn
+controlRole       控制职责，例如 context、executor、verifier、memory
+```
+
+这套分类不是纯自创。外层结构保留 Agent Skills / Claude Code Skills 的 `SKILL.md`、`references/`、`examples/` 和 progressive disclosure；分类思路吸收 GitHub Copilot Agent Skills、OpenHands Skills 的仓库/任务触发能力组织方式；交付控制参考 Claude Code subagents/hooks 的工程风格。Conduit 相关 Skill 是在这些方法之上的项目定制层。
+
+当前矩阵：
+
+```txt
+conduit-repo-map        repository-context / dependency-loaded / orient / context
+conduit-domain-model    domain-knowledge   / dependency-loaded / orient / context
+conduit-frontend-map    surface-map        / dependency-loaded / orient / context
+conduit-test-command    test-intelligence  / dependency-loaded / verify / verifier
+ui-computed-display     task-operation     / keyword-triggered / modify / executor
+profile-page-extension  task-operation     / keyword-triggered / modify / executor
+add-entity-field        task-operation     / keyword-triggered / modify / executor
+test-repair-pr          quality-gate       / post-task-hook    / verify / verifier
+conduit-change-memory   change-memory      / post-task-hook    / learn  / memory
 ```
 
 例如 “Popular Tags 前 5 个标签增加 TOP 标识” 会同时命中：

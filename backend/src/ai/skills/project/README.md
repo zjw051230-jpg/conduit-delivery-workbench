@@ -8,9 +8,18 @@ These project-level Skills are runtime assets for the Super Individual AI orches
 - `requirements/`: requirement execution Skills for recurring Conduit change patterns. These depend on understanding Skills and define safe patch and test rules.
 - `delivery/`: verification, repair, and PR draft guidance after code generation.
 
+## Taxonomy v2
+
+Every manifest includes `classification`, a capability matrix inspired by Agent Skills, GitHub Copilot Agent Skills, OpenHands Skills, and Claude Code engineering controls.
+
+- `capabilityClass`: what kind of capability the Skill provides.
+- `activationMode`: how the Skill enters a run.
+- `workflowPhase`: where it belongs in `orient -> plan -> modify -> verify -> learn`.
+- `controlRole`: whether it supplies context, executes a task, verifies quality, or writes memory.
+
 ## Registry Loading Idea
 
-Load `registry.example.json`, resolve each listed `manifestPath` relative to this directory, validate every manifest against `skill-manifest.schema.json`, then index by `id`, `type`, `triggers`, `riskLevel`, and `testProfile`.
+Load `registry.json`, resolve each listed `manifestPath` relative to this directory, validate every manifest against `skill-manifest.schema.json`, then index by `id`, `type`, `triggers`, `riskLevel`, `testProfile`, and `classification`.
 
 At runtime, the orchestrator should:
 
