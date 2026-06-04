@@ -5,6 +5,7 @@ const { SkillRegistry } = require("../skills/skillRegistry");
 const { resolveSkillPlan } = require("../skills/skillPlanResolver");
 const { buildRepositoryIndex } = require("../context/repositoryIndexer");
 const { retrieveContext } = require("../context/retriever");
+const { compileContextPackageFromDsl } = require("../context/graphify/contextPackageBuilder");
 const { clarifyRequirement } = require("../agents/pmClarifierAgent");
 const { createRequirementDsl } = require("../agents/requirementDslAgent");
 const { locateModules } = require("../agents/moduleLocatorAgent");
@@ -61,7 +62,19 @@ function runPipeline({ requirement, taskMode, applyChanges = false, runTests = f
   });
   stages.push(stage("context-rag", "completed", { filesIndexed: index.length, retrievedContext }));
 
-  const moduleMap = locateModules({ dsl, retrievedContext });
+  const graphifyContext = compileContextPackageFromDsl({
+    finalDsl: dsl,
+    repoRoot: config.conduitRepoPath,
+    graphifyRoot: config.graphifyRoot,
+    options: { autoBuild: config.graphifyAutoBuild },
+    keywordIndex: index,
+    contextHints: dsl.contextHints,
+  });
+  const moduleMap = locateModules({
+    dsl,
+    retrievedContext,
+    graphifyContextPackage: graphifyContext.contextPackage,
+  });
   stages.push(stage("module-locator", "completed", moduleMap));
 
   const solutionPlan = createSolutionPlan({ dsl, moduleMap });

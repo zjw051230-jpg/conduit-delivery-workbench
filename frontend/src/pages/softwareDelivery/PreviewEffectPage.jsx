@@ -206,23 +206,23 @@ function buildComparison(summary) {
 }
 
 function inferOutcome(requirement) {
-  if (/reading time|word count|闃呰|瀛楁暟/i.test(requirement)) return "Readers can see word count and estimated reading time.";
-  if (/hot|popular|鐑棬|TOP|tag|鏍囩/i.test(requirement)) return "Users can identify popular tags from the tag list.";
-  if (/cover|灏侀潰|image|鍥剧墖/i.test(requirement)) return "Editors can see or manage the cover image field.";
+  if (/reading time|word count|阅读|字数/i.test(requirement)) return "Readers can see word count and estimated reading time.";
+  if (/hot|popular|热门|TOP|tag|标签/i.test(requirement)) return "Users can identify popular tags from the tag list.";
+  if (/cover|封面|image|图片/i.test(requirement)) return "Editors can see or manage the cover image field.";
   if (requirement) return requirement;
   return "Preview will be populated after code changes and test run.";
 }
 
 function inferTargetSurface(requirement) {
-  if (/article|鏂囩珷|璇︽儏/i.test(requirement)) return "Article detail page";
-  if (/tag|鏍囩|鐑棬|TOP/i.test(requirement)) return "Tag list";
-  if (/cover|灏侀潰|editor|缂栬緫/i.test(requirement)) return "Article editor";
+  if (/article|文章|详情/i.test(requirement)) return "Article detail page";
+  if (/tag|标签|热门|TOP/i.test(requirement)) return "Tag list";
+  if (/cover|封面|editor|编辑/i.test(requirement)) return "Article editor";
   return "Target product surface from the approved implementation plan";
 }
 
 function inferWorkflow(requirement) {
-  if (/article|鏂囩珷|璇︽儏/i.test(requirement)) return "reader article consumption flow";
-  if (/tag|鏍囩|鐑棬|TOP/i.test(requirement)) return "tag discovery flow";
-  if (/cover|灏侀潰|editor|缂栬緫/i.test(requirement)) return "article editing flow";
+  if (/article|文章|详情/i.test(requirement)) return "reader article consumption flow";
+  if (/tag|标签|热门|TOP/i.test(requirement)) return "tag discovery flow";
+  if (/cover|封面|editor|编辑/i.test(requirement)) return "article editing flow";
   return "software delivery user-facing workflow";
 }
