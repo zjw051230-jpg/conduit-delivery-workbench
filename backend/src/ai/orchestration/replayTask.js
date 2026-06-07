@@ -1,8 +1,8 @@
-const { runPipeline } = require("./runPipeline");
+const { runPipelineAsync } = require("./runPipeline");
 const { runAllAlgorithmStages } = require("./algorithmStageRunner");
 const { TASK_MODES } = require("./taskModes");
 
-function replayTask({ taskStore, taskId, config, taskMode, fromStage, runAll = false, applyChanges = false, runTests = false }) {
+async function replayTask({ taskStore, taskId, config, taskMode, fromStage, runAll = false, applyChanges = false, runTests = false }) {
   const savedTask = taskStore.get(taskId);
   if (!savedTask) {
     const error = new Error("task not found");
@@ -11,7 +11,7 @@ function replayTask({ taskStore, taskId, config, taskMode, fromStage, runAll = f
   }
 
   const replayTaskMode = taskMode || savedTask.taskMode;
-  let replayedTask = runPipeline({
+  let replayedTask = await runPipelineAsync({
     requirement: savedTask.requirement,
     taskMode: replayTaskMode,
     applyChanges,

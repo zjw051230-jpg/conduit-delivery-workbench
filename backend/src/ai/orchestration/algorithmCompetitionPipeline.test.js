@@ -3,7 +3,7 @@ const path = require("node:path");
 const fs = require("node:fs");
 const { runAlgorithmStage, runAllAlgorithmStages } = require("./algorithmStageRunner");
 const { getAlgorithmStageDefinitions } = require("./algorithmStageRegistry");
-const { runPipeline } = require("./runPipeline");
+const { runPipeline, runPipelineAsync } = require("./runPipeline");
 
 const algorithmStages = [
   "pm_input",
@@ -60,16 +60,17 @@ function write(root, relativePath, content) {
 }
 
 describe("algorithm competition pipeline", () => {
-  test("defaults to the existing software delivery flow when taskMode is omitted", () => {
-    const task = runPipeline({
+  test("defaults to the existing software delivery flow when taskMode is omitted", async () => {
+    const task = await runPipelineAsync({
       requirement: "Popular Tags 前 5 个标签增加 TOP 标识",
       applyChanges: false,
       runTests: false,
-      config: { conduitRepoPath: createRepoFixture() },
+      config: { conduitRepoPath: createRepoFixture(), chatCompletionImpl: echoDslTemplate },
     });
 
     expect(task.taskMode).toBe("software_delivery");
-    expect(task.dsl.version).toBe("delivery-dsl/v0.1");
+    expect(task.dsl.requirement_dsl_v3.meta.dsl_version).toBe("3.0.0");
+    expect(task.executionContract.version).toBe("requirement-dsl/v3-execution-contract");
     expect(task.stages.map((stage) => stage.name)).toEqual([
       "pm-clarifier",
       "requirement-dsl",
@@ -180,3 +181,13 @@ describe("algorithm competition pipeline", () => {
     });
   });
 });
+
+async function echoDslTemplate({ messages }) {
+  const body = JSON.parse(messages[messages.length - 1].content);
+  return {
+    configured: true,
+    content: JSON.stringify(body.emptyTemplate),
+    usage: { total_tokens: 1 },
+    latencyMs: 1,
+  };
+}

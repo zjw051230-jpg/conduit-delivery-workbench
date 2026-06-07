@@ -14,6 +14,7 @@ function getConfig() {
       ? path.resolve(projectRoot, process.env.GRAPHIFY_ROOT)
       : path.resolve(projectRoot, "../graphify-8/graphify-8"),
     graphifyAutoBuild: String(process.env.GRAPHIFY_AUTO_BUILD || "false").toLowerCase() === "true",
+    codeAgentMode: String(process.env.CODE_AGENT_MODE || "deterministic").toLowerCase(),
     ark: {
       apiKey: process.env.ARK_API_KEY || "",
       model: process.env.ARK_MODEL || "",

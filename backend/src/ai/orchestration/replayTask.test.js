@@ -1,7 +1,7 @@
 const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
-const { runPipeline } = require("./runPipeline");
+const { runPipelineAsync } = require("./runPipeline");
 const { replayTask } = require("./replayTask");
 
 const tagButtonSource = `import { useFeedContext } from "../../context/FeedContext";
@@ -37,9 +37,9 @@ function write(root, relativePath, content) {
 }
 
 describe("task replay", () => {
-  test("reruns a saved dry-run task as an apply run", () => {
-    const config = { conduitRepoPath: createRepoFixture() };
-    const savedTask = runPipeline({
+  test("reruns a saved dry-run task as an apply run", async () => {
+    const config = { conduitRepoPath: createRepoFixture(), chatCompletionImpl: echoDslTemplate };
+    const savedTask = await runPipelineAsync({
       requirement: "Popular Tags 前 5 个标签增加 TOP 标识",
       applyChanges: false,
       runTests: false,
@@ -50,7 +50,7 @@ describe("task replay", () => {
       save: (task) => task,
     };
 
-    const replayed = replayTask({
+    const replayed = await replayTask({
       taskStore,
       taskId: savedTask.id,
       config,
@@ -72,3 +72,13 @@ describe("task replay", () => {
     expect(tagButton).toContain("top-tag-badge");
   });
 });
+
+async function echoDslTemplate({ messages }) {
+  const body = JSON.parse(messages[messages.length - 1].content);
+  return {
+    configured: true,
+    content: JSON.stringify(body.emptyTemplate),
+    usage: { total_tokens: 1 },
+    latencyMs: 1,
+  };
+}

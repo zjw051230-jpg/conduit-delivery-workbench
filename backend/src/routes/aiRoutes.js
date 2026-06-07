@@ -5,7 +5,7 @@ const { SkillRegistry } = require("../ai/skills/skillRegistry");
 const { resolveSkillPlan } = require("../ai/skills/skillPlanResolver");
 const { buildRepositoryIndex } = require("../ai/context/repositoryIndexer");
 const { retrieveContext } = require("../ai/context/retriever");
-const { runPipeline } = require("../ai/orchestration/runPipeline");
+const { runPipelineAsync } = require("../ai/orchestration/runPipeline");
 const { replayTask } = require("../ai/orchestration/replayTask");
 const {
   runAlgorithmStage,
@@ -36,6 +36,7 @@ function createAiRouter({ config, taskStore }) {
         modelConfigured: Boolean(config.ark.model),
         apiKeyConfigured: Boolean(config.ark.apiKey),
       },
+      codeAgentMode: config.codeAgentMode,
       skillCount: skills.length + projectSkills.length,
       legacySkillCount: skills.length,
       projectSkillCount: projectSkills.length,
@@ -82,14 +83,14 @@ function createAiRouter({ config, taskStore }) {
     });
   });
 
-  router.post("/tasks", (req, res, next) => {
+  router.post("/tasks", async (req, res, next) => {
     try {
       const { requirement, taskMode, applyChanges = false, runTests = false } = req.body || {};
       if (!requirement || !String(requirement).trim()) {
         return res.status(400).json({ error: "requirement is required" });
       }
 
-      const task = runPipeline({ requirement, taskMode, applyChanges, runTests, config });
+      const task = await runPipelineAsync({ requirement, taskMode, applyChanges, runTests, config });
       taskStore.save(task);
       return res.status(201).json({ task });
     } catch (error) {
@@ -165,10 +166,10 @@ function createAiRouter({ config, taskStore }) {
     }
   });
 
-  router.post("/tasks/:taskId/replay", (req, res, next) => {
+  router.post("/tasks/:taskId/replay", async (req, res, next) => {
     try {
       const { taskMode, fromStage, runAll = false, applyChanges = false, runTests = false } = req.body || {};
-      const task = replayTask({
+      const task = await replayTask({
         taskStore,
         taskId: req.params.taskId,
         config,
