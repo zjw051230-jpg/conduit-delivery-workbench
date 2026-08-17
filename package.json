@@ -1,8 +1,8 @@
 {
-  "name": "ai-super-individual",
+  "name": "conduit-delivery-workbench",
   "version": "0.1.0",
   "private": true,
-  "description": "AI orchestration system for end-to-end Conduit full-stack delivery.",
+  "description": "Local workbench for planning, testing, and reviewing changes to the Conduit sample application.",
   "scripts": {
     "dev": "concurrently --names API,WEB -c green,blue \"npm run dev:api\" \"npm run dev:web\"",
     "dev:api": "node --watch backend/src/server.js",
